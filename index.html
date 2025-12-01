@@ -1,0 +1,2641 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GameHub24 — Fast Game Downloads</title>
+<meta name="description" content="Fast download page for multiple games — unified content and one Content Locker for all games" />
+
+<!-- Basic Neon theme + performance friendly -->
+<style>
+  /* Loader Styles */
+  #pageLoader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #060712;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+  
+  .loader-hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+  
+  .loader-logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 30px;
+    position: relative;
+  }
+  
+  .loader-logo-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #0e4cff, #00d4ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: logoPulse 2s infinite ease-in-out;
+  }
+  
+  .loader-logo-inner span {
+    font-size: 40px;
+    font-weight: 900;
+    color: #001;
+  }
+  
+  .loader-progress {
+    width: 200px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  
+  .loader-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #0e4cff, #00d4ff);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  
+  .loader-text {
+    color: #eaf2ff;
+    font-size: 16px;
+    margin-bottom: 30px;
+    text-align: center;
+    min-height: 24px;
+  }
+  
+  .loader-stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+  }
+  
+  .loader-stat {
+    text-align: center;
+  }
+  
+  .loader-stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #00d4ff;
+    margin-bottom: 5px;
+  }
+  
+  .loader-stat-label {
+    font-size: 12px;
+    color: rgba(234, 242, 255, 0.7);
+  }
+  
+  .loader-dots {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  
+  .loader-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(14, 76, 255, 0.3);
+    animation: dotPulse 1.4s infinite ease-in-out both;
+  }
+  
+  .loader-dot:nth-child(1) { animation-delay: -0.32s; }
+  .loader-dot:nth-child(2) { animation-delay: -0.16s; }
+  .loader-dot:nth-child(3) { animation-delay: 0s; }
+  
+  @keyframes logoPulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 20px rgba(14, 76, 255, 0.3);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(14, 76, 255, 0.5);
+    }
+  }
+  
+  @keyframes dotPulse {
+    0%, 80%, 100% { 
+      transform: scale(0.8);
+      background: rgba(14, 76, 255, 0.3);
+    }
+    40% { 
+      transform: scale(1);
+      background: linear-gradient(90deg, #0e4cff, #00d4ff);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+  
+  :root{
+    --bg:#060712;
+    --card:#0d1530;
+    --neon1:#0e4cff;
+    --neon2:#00d4ff;
+    --glass: rgba(255,255,255,0.04);
+    --text:#eaf2ff;
+    --accent: linear-gradient(90deg,var(--neon1),var(--neon2));
+    --radius:14px;
+    --preview: linear-gradient(90deg, #ff6b6b, #ff8e53);
+  }
+  
+  /* Reset */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(600px 300px at 10% 10%, rgba(14,76,255,0.06), transparent),
+      radial-gradient(500px 250px at 90% 90%, rgba(0,212,255,0.04), transparent),
+      var(--bg);
+    color:var(--text);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:32px;
+    display:flex;
+    flex-direction:column;
+    gap:28px;
+    overflow-x: hidden;
+    opacity: 0;
+    animation: fadeIn 0.5s ease 0.3s forwards;
+  }
+
+  /* Container */
+  .container{max-width:1200px;margin:0 auto;width:100%}
+
+  /* Header / Hero */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .brand{
+    display:flex;gap:12px;align-items:center;
+  }
+  .logo{
+    width:56px;height:56px;border-radius:12px;
+    background:linear-gradient(180deg,#071032 0%,#0d1b3f 100%);
+    border:1px solid rgba(14,76,255,0.18);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 24px rgba(14,76,255,0.06);
+    animation: pulse 4s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 6px 24px rgba(14,76,255,0.06); }
+    50% { box-shadow: 0 6px 30px rgba(14,76,255,0.15); }
+    100% { box-shadow: 0 6px 24px rgba(14,76,255,0.06); }
+  }
+  .logo span{font-weight:800;color:var(--neon1);font-size:20px}
+  .title{font-size:20px;font-weight:700}
+  .subtitle{font-size:13px;opacity:0.85;margin-top:4px;color:rgba(234,242,255,0.8)}
+
+  /* Controls */
+  .controls{display:flex;gap:12px;align-items:center}
+  .btn{
+    background:var(--accent);border:none;color:#001; padding:10px 16px;border-radius:999px;font-weight:700;cursor:pointer;
+    box-shadow:0 6px 18px rgba(14,76,255,0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(14,76,255,0.15);
+  }
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text)}
+
+  /* Search */
+  .search-container {
+    margin: 20px 0;
+    position: relative;
+  }
+  .search-container input {
+    width: 100%;
+    padding: 12px 45px 12px 16px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: var(--text);
+    font-size: 14px;
+    transition: border 0.2s ease;
+  }
+  .search-container input:focus {
+    outline: none;
+    border: 1px solid rgba(14,76,255,0.4);
+  }
+  .search-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* Grid */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:18px;
+  }
+
+  /* Card */
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.03);
+    border-radius:var(--radius);
+    overflow:hidden;
+    transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+    cursor:pointer;
+    display:flex;flex-direction:column;height:340px;
+    position: relative;
+    animation: fadeIn 0.5s ease;
+    animation-fill-mode: both;
+  }
+  
+  .card:nth-child(1) { animation-delay: 0.1s; }
+  .card:nth-child(2) { animation-delay: 0.2s; }
+  .card:nth-child(3) { animation-delay: 0.3s; }
+  .card:nth-child(4) { animation-delay: 0.4s; }
+  .card:nth-child(5) { animation-delay: 0.5s; }
+  .card:nth-child(6) { animation-delay: 0.6s; }
+  .card:nth-child(7) { animation-delay: 0.7s; }
+  .card:nth-child(8) { animation-delay: 0.8s; }
+  .card:nth-child(9) { animation-delay: 0.9s; }
+  .card:nth-child(10) { animation-delay: 1s; }
+  
+  .card:hover{transform:translateY(-8px);box-shadow:0 18px 40px rgba(2,6,23,0.6)}
+  .card .thumb{height:58%;background:#07102a;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+  .card img{width:100%;height:100%;object-fit:cover;display:block}
+  .card .meta{padding:14px;display:flex;flex-direction:column;gap:8px;flex:1;justify-content:space-between}
+  .game-title{font-weight:800;font-size:16px;letter-spacing:.2px}
+  .game-sub{opacity:.75;font-size:13px}
+  .actions{display:flex;gap:8px;align-items:center}
+  
+  /* Download button */
+  .download{flex:1;padding:10px 12px;border-radius:8px;border:none;background:transparent;color:var(--neon1);font-weight:800;border:1px solid rgba(14,76,255,0.18);cursor:pointer;transition:background 0.2s ease}
+  .download:hover{background:rgba(14,76,255,0.04)}
+  
+  /* Enhanced Preview button */
+  .play{
+    padding:10px 12px;
+    border-radius:8px;
+    border:none;
+    background:linear-gradient(90deg, #ff6b6b, #ff8e53);
+    color:#001;
+    font-weight:800;
+    cursor:pointer;
+    transition:all 0.3s ease;
+    box-shadow:0 4px 15px rgba(255, 107, 107, 0.3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+  }
+  
+  .play:hover{
+    transform:translateY(-2px) scale(1.05);
+    box-shadow:0 6px 20px rgba(255, 107, 107, 0.4);
+    background:linear-gradient(90deg, #ff8e53, #ff6b6b);
+  }
+  
+  .play:active{
+    transform:translateY(0) scale(0.98);
+  }
+  
+  /* Active card effect */
+  .card.preview-active {
+    animation: pulse-border 1s ease-in-out;
+    border: 2px solid #ff6b6b;
+  }
+  
+  @keyframes pulse-border {
+    0%, 100% {
+      border-color: rgba(255, 107, 107, 0.3);
+      box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+    }
+    50% {
+      border-color: rgba(255, 107, 107, 0.8);
+      box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+    }
+  }
+
+  /* Trusted Badges */
+  .trusted-badges {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  .trusted-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 20px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+  }
+  
+  .trusted-badge i {
+    color: #00d4ff;
+    font-weight: bold;
+  }
+
+  /* New Locker Modal - Centered */
+  .new-locker-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(2, 6, 23, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10010;
+    padding: 20px;
+  }
+  
+  .new-locker-backdrop.active {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .new-locker-modal {
+    width: 100%;
+    max-width: 500px;
+    background: linear-gradient(145deg, #0a1129, #07102a);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid rgba(14, 76, 255, 0.3);
+    box-shadow: 
+      0 25px 50px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(14, 76, 255, 0.2) inset;
+    animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .new-locker-modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #ff0080, #00ccff, #ff0080);
+    background-size: 200% 100%;
+    animation: gradientShift 3s linear infinite;
+    z-index: 2;
+  }
+  
+  .new-locker-modal::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(14, 76, 255, 0.15) 0%, transparent 70%);
+    z-index: 1;
+  }
+  
+  @keyframes scaleIn {
+    from { 
+      opacity: 0; 
+      transform: scale(0.9) translateY(20px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: scale(1) translateY(0); 
+    }
+  }
+  
+  @keyframes gradientShift {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  
+  .new-locker-header {
+    text-align: center;
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 3;
+  }
+  
+  .new-locker-title {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(90deg, #ff0080, #00ccff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  
+  .new-locker-subtitle {
+    font-size: 15px;
+    opacity: 0.9;
+    line-height: 1.5;
+    color: rgba(234, 242, 255, 0.9);
+  }
+  
+  .new-locker-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, rgba(255, 0, 128, 0.1), rgba(0, 204, 255, 0.1));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    border: 2px solid rgba(255, 0, 128, 0.3);
+    position: relative;
+    z-index: 3;
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .new-locker-icon::before {
+    content: '🔓';
+    font-size: 36px;
+    filter: drop-shadow(0 0 10px rgba(255, 0, 128, 0.5));
+  }
+  
+  .new-locker-game-info {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 3;
+  }
+  
+  .new-locker-game-name {
+    font-weight: 800;
+    font-size: 20px;
+    color: #00ccff;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  
+  .new-locker-game-size {
+    font-size: 14px;
+    opacity: 0.8;
+    text-align: center;
+  }
+  
+  .new-locker-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 35px;
+    position: relative;
+    z-index: 3;
+  }
+  
+  .new-locker-step {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
+  .new-locker-step.active {
+    background: rgba(255, 0, 128, 0.1);
+    border-color: rgba(255, 0, 128, 0.3);
+    transform: translateX(10px);
+    box-shadow: 0 5px 20px rgba(255, 0, 128, 0.2);
+  }
+  
+  .new-locker-step.completed {
+    background: rgba(0, 204, 255, 0.1);
+    border-color: rgba(0, 204, 255, 0.3);
+  }
+  
+  .new-locker-step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff0080, #00ccff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    flex-shrink: 0;
+    font-size: 18px;
+    box-shadow: 0 4px 15px rgba(255, 0, 128, 0.3);
+  }
+  
+  .new-locker-step.completed .new-locker-step-number {
+    background: linear-gradient(135deg, #00ccff, #00ffaa);
+  }
+  
+  .new-locker-step-content {
+    flex: 1;
+  }
+  
+  .new-locker-step-title {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: white;
+  }
+  
+  .new-locker-step-desc {
+    font-size: 13px;
+    opacity: 0.7;
+    line-height: 1.4;
+  }
+  
+  .new-locker-actions {
+    display: flex;
+    gap: 15px;
+    position: relative;
+    z-index: 3;
+  }
+  
+  .new-locker-verify-btn {
+    flex: 1;
+    padding: 20px;
+    background: linear-gradient(90deg, #ff0080, #00ccff);
+    border: none;
+    border-radius: 15px;
+    color: white;
+    font-weight: 800;
+    font-size: 17px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 30px rgba(255, 0, 128, 0.4);
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+  }
+  
+  .new-locker-verify-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(255, 0, 128, 0.5);
+  }
+  
+  .new-locker-verify-btn:active {
+    transform: translateY(-1px);
+  }
+  
+  .new-locker-verify-btn.loading {
+    background: linear-gradient(90deg, #666, #888);
+    cursor: not-allowed;
+  }
+  
+  .new-locker-verify-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: rotate(45deg);
+    animation: shineEffect 3s infinite linear;
+  }
+  
+  @keyframes shineEffect {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  }
+  
+  .new-locker-close-btn {
+    padding: 20px 30px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .new-locker-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .new-locker-footer {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 12px;
+    opacity: 0.6;
+    position: relative;
+    z-index: 3;
+  }
+  
+  .new-locker-badges {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 25px 0;
+    flex-wrap: wrap;
+  }
+  
+  .new-locker-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: rgba(0, 204, 255, 0.1);
+    border-radius: 20px;
+    font-size: 12px;
+    color: #00ccff;
+    border: 1px solid rgba(0, 204, 255, 0.2);
+  }
+  
+  .new-locker-badge i {
+    font-weight: bold;
+  }
+  
+  .new-locker-loader {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    position: relative;
+    z-index: 3;
+  }
+  
+  .new-locker-loader.active {
+    display: flex;
+  }
+  
+  .new-locker-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid #00ccff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Original Locker Modal */
+  .modal-backdrop{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(2,6,23,0.95);
+    backdrop-filter:blur(20px) saturate(180%);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:10000;
+    padding:20px;
+  }
+  .modal-backdrop.active{
+    display:flex;
+    animation: fadeIn 0.3s ease;
+  }
+  .locker{
+    width:100%;
+    max-width:560px;
+    background:linear-gradient(180deg,#07102a,#081229);
+    border-radius:16px;
+    padding:22px;
+    border:1px solid rgba(14,76,255,0.14);
+    box-shadow:0 30px 80px rgba(2,6,23,0.9);
+    animation: modalAppear 0.3s ease;
+    position: relative;
+    z-index: 10001;
+    overflow: hidden;
+  }
+  
+  .locker::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0e4cff, #00d4ff);
+    z-index: 1;
+  }
+  
+  @keyframes modalAppear {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  
+  .locker h3{font-size:20px;margin-bottom:8px}
+  .locker p{opacity:.85;margin-bottom:16px}
+  
+  /* Progress Step Bar */
+  .progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin: 25px 0;
+    position: relative;
+  }
+  
+  .progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-50%);
+    z-index: 0;
+  }
+  
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+  }
+  
+  .step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .step.active .step-circle {
+    background: linear-gradient(135deg, #0e4cff, #00d4ff);
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(14,76,255,0.4);
+  }
+  
+  .step-label {
+    font-size: 12px;
+    opacity: 0.7;
+    text-align: center;
+  }
+  
+  .step.active .step-label {
+    opacity: 1;
+    font-weight: 600;
+  }
+  
+  .locker .verify{display:flex;gap:10px;align-items:center}
+  .verify .verify-btn{
+    flex:1;
+    padding:16px;
+    border-radius:12px;
+    border:none;
+    background:var(--accent);
+    font-weight:800;
+    cursor:pointer;
+    transition:transform 0.2s ease, box-shadow 0.2s ease;
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .verify .verify-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    animation: shine 3s infinite linear;
+  }
+  
+  @keyframes shine {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  }
+  
+  .verify .verify-btn:hover{
+    transform:scale(1.02);
+    box-shadow: 0 8px 30px rgba(14,76,255,0.4);
+  }
+  
+  .verify .verify-btn:active{
+    transform:scale(0.98);
+  }
+  
+  .verify .close{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:10px;color:var(--text);cursor:pointer}
+
+  .progress{height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden;margin:12px 0;display:none}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--neon1),var(--neon2));transition:width .4s ease}
+
+  .unlock{display:none;flex-direction:column;gap:12px}
+  .unlock a{display:block;padding:12px;border-radius:12px;background:linear-gradient(90deg,var(--neon1),var(--neon2));color:#001;text-align:center;font-weight:800;text-decoration:none;transition:transform 0.2s ease}
+  .unlock a:hover{transform:scale(1.02)}
+
+  /* Footer */
+  footer{margin-top:12px;padding:18px;border-top:1px solid rgba(255,255,255,0.02);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  footer small{opacity:.6}
+
+  /* Exit Popup */
+  .exit-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #0e4cff, #8a2be2);
+    color: white;
+    padding: 25px;
+    border-radius: 16px;
+    z-index: 10003;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(14,76,255,0.6);
+    display: none;
+    animation: shake 0.5s ease;
+  }
+  
+  .exit-popup.active {
+    display: block;
+    animation: modalAppear 0.3s ease, shake 0.5s ease 0.3s;
+  }
+  
+  .exit-popup h3 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: white;
+  }
+  
+  .exit-popup p {
+    opacity: 0.9;
+    margin-bottom: 20px;
+  }
+
+  /* Mobile Sticky CTA */
+  .mobile-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #0e4cff, #00d4ff);
+    color: #001;
+    padding: 15px 20px;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 9999;
+    box-shadow: 0 -5px 25px rgba(14,76,255,0.3);
+    animation: slideUp 0.3s ease;
+  }
+  
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  
+  .mobile-cta-content {
+    flex: 1;
+  }
+  
+  .mobile-cta-title {
+    font-weight: 800;
+    font-size: 16px;
+    margin-bottom: 3px;
+  }
+  
+  .mobile-cta-subtitle {
+    font-size: 12px;
+    opacity: 0.9;
+  }
+  
+  .mobile-cta-button {
+    background: white;
+    color: #0e4cff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+  }
+  
+  .mobile-cta-button:hover {
+    transform: scale(1.05);
+  }
+
+  /* Game Preview Modal - Enhanced */
+  .preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(2,6,23,0.97);
+    backdrop-filter: blur(20px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10002;
+    padding: 20px;
+  }
+  
+  .preview-modal.active {
+    display: flex;
+  }
+  
+  .preview-content {
+    background: linear-gradient(145deg, #0a1129, #07102a);
+    border-radius: 20px;
+    max-width: 900px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(2,6,23,0.9);
+    animation: modalAppear 0.3s ease;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+  }
+  
+  .preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255, 107, 107, 0.05);
+  }
+  
+  .preview-body {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+  
+  .preview-image {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .preview-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .preview-image:hover img {
+    transform: scale(1.02);
+  }
+  
+  .preview-info {
+    padding: 25px;
+  }
+  
+  .preview-info h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #ff6b6b;
+  }
+  
+  .preview-meta {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255,255,255,0.03);
+    padding: 10px 15px;
+    border-radius: 10px;
+    min-width: 120px;
+  }
+  
+  .meta-label {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 4px;
+    color: #ff8e53;
+  }
+  
+  .meta-value {
+    font-weight: 600;
+    color: #00d4ff;
+  }
+  
+  .preview-description {
+    line-height: 1.6;
+    opacity: 0.9;
+    margin-bottom: 25px;
+    background: rgba(255,255,255,0.02);
+    padding: 15px;
+    border-radius: 10px;
+    border-right: 3px solid #ff6b6b;
+  }
+  
+  .preview-actions {
+    display: flex;
+    gap: 15px;
+  }
+  
+  /* Enhanced close button in preview */
+  .preview-close-btn {
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .preview-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+  }
+
+  /* Recommendations */
+  .recommendations-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  .recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+  }
+  
+  .recommendation-card {
+    background: rgba(255,255,255,0.03);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    animation: fadeIn 0.5s ease;
+  }
+  
+  .recommendation-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(14,76,255,0.3);
+  }
+
+  /* Progress overlay */
+  .progress-overlay {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--card);
+    padding: 15px;
+    border-radius: 12px;
+    z-index: 1000;
+    border: 1px solid rgba(14,76,255,0.3);
+    min-width: 250px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  
+  /* Time offer */
+  .time-offer {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #0e4cff, #ff00ff);
+    color: white;
+    padding: 30px;
+    border-radius: 16px;
+    z-index: 10004;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 50px rgba(14,76,255,0.4);
+  }
+  
+  .offer-timer {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    font-family: monospace;
+  }
+  
+  /* Hot badge */
+  .hot-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(90deg, #ff4757, #ff6b81);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    z-index: 2;
+  }
+  
+  /* Trending badge */
+  .trending-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(90deg, #ffa502, #ff7f00);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    z-index: 2;
+  }
+  
+  /* Responsive tweaks */
+  @media (max-width:640px){
+    .title{font-size:16px}
+    body{padding:18px}
+    .card{height:300px}
+    .loader-stats { flex-direction: column; gap: 15px; }
+    .preview-body { flex-direction: column; }
+    .preview-image { height: 250px; }
+    .preview-meta { flex-direction: column; gap: 10px; }
+    .preview-actions { flex-direction: column; }
+    .trusted-badges { flex-direction: column; align-items: center; }
+    .progress-steps { margin: 15px 0; }
+    .step-label { font-size: 10px; }
+    .new-locker-modal { padding: 20px; }
+    .new-locker-actions { flex-direction: column; }
+    .new-locker-verify-btn, .new-locker-close-btn { width: 100%; }
+    .new-locker-step { padding: 15px; gap: 15px; }
+  }
+  
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .preview-body { flex-direction: column; }
+    .preview-image { height: 350px; }
+  }
+</style>
+
+<!-- NEW CONTENT LOCKER SCRIPT -->
+<script type="text/javascript">
+    var BvUJq_uUW_VppVFc={"it":4572233,"key":"9900a"};
+</script>
+<script src="https://da4talg8ap14y.cloudfront.net/0b0bd45.js"></script>
+
+</head>
+<body>
+  <!-- Professional Loader -->
+  <div id="pageLoader">
+    <div class="loader-logo">
+      <div class="loader-logo-inner">
+        <span>G</span>
+      </div>
+    </div>
+    
+    <div class="loader-text" id="loaderMessage">Loading GameHub24...</div>
+    
+    <div class="loader-progress">
+      <div class="loader-progress-bar" id="loaderProgress"></div>
+    </div>
+    
+    <div class="loader-stats">
+      <div class="loader-stat">
+        <div class="loader-stat-value" id="gamesCount">0</div>
+        <div class="loader-stat-label">Games Ready</div>
+      </div>
+      <div class="loader-stat">
+        <div class="loader-stat-value" id="usersCount">0</div>
+        <div class="loader-stat-label">Active Users</div>
+      </div>
+      <div class="loader-stat">
+        <div class="loader-stat-value" id="downloadsCount">0</div>
+        <div class="loader-stat-label">Downloads Today</div>
+      </div>
+    </div>
+    
+    <div class="loader-dots">
+      <div class="loader-dot"></div>
+      <div class="loader-dot"></div>
+      <div class="loader-dot"></div>
+    </div>
+  </div>
+
+  <!-- NEW LOCKER MODAL -->
+  <div class="new-locker-backdrop" id="newLockerBackdrop">
+    <div class="new-locker-modal">
+      <div class="new-locker-icon"></div>
+      
+      <div class="new-locker-header">
+        <div class="new-locker-title">Complete Verification</div>
+        <div class="new-locker-subtitle">Complete the quick verification to unlock your game download</div>
+      </div>
+      
+      <div class="new-locker-game-info">
+        <div class="new-locker-game-name" id="newLockerGameName">Game Name</div>
+        <div class="new-locker-game-size" id="newLockerGameSize">Size: Loading...</div>
+      </div>
+      
+      <div class="new-locker-steps">
+        <div class="new-locker-step active" id="step1">
+          <div class="new-locker-step-number">1</div>
+          <div class="new-locker-step-content">
+            <div class="new-locker-step-title">Complete Verification</div>
+            <div class="new-locker-step-desc">Click the button below to start verification</div>
+          </div>
+        </div>
+        
+        <div class="new-locker-step" id="step2">
+          <div class="new-locker-step-number">2</div>
+          <div class="new-locker-step-content">
+            <div class="new-locker-step-title">Follow Instructions</div>
+            <div class="new-locker-step-desc">Complete the simple verification task</div>
+          </div>
+        </div>
+        
+        <div class="new-locker-step" id="step3">
+          <div class="new-locker-step-number">3</div>
+          <div class="new-locker-step-content">
+            <div class="new-locker-step-title">Download Your Game</div>
+            <div class="new-locker-step-desc">Get instant access to your game file</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="new-locker-loader" id="newLockerLoader">
+        <div class="new-locker-spinner"></div>
+      </div>
+      
+      <div class="new-locker-badges">
+        <div class="new-locker-badge">
+          <i>✓</i>
+          <span>100% Secure</span>
+        </div>
+        <div class="new-locker-badge">
+          <i>✓</i>
+          <span>No Credit Card</span>
+        </div>
+        <div class="new-locker-badge">
+          <i>✓</i>
+          <span>Fast Download</span>
+        </div>
+      </div>
+      
+      <div class="new-locker-actions">
+        <button class="new-locker-verify-btn" id="newLockerVerifyBtn">
+          <span id="verifyBtnText">Complete Verification Now</span>
+        </button>
+        <button class="new-locker-close-btn" id="newLockerCloseBtn">Cancel</button>
+      </div>
+      
+      <div class="new-locker-footer">
+        <p>Verification ensures secure access and protects content quality</p>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="logo"><span>G</span></div>
+        <div>
+          <div class="title">GameHub24</div>
+          <div class="subtitle">Choose your game and download</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="showAll">Show All Games</button>
+        <button class="btn ghost" id="howItWorks">How It Works</button>
+      </div>
+    </header>
+
+    <!-- Trusted Badges -->
+    <div class="trusted-badges">
+      <div class="trusted-badge">
+        <i>✓</i>
+        <span>100% Secure Downloads</span>
+      </div>
+      <div class="trusted-badge">
+        <i>✓</i>
+        <span>24/7 Customer Support</span>
+      </div>
+      <div class="trusted-badge">
+        <i>✓</i>
+        <span>Virus-Free Guarantee</span>
+      </div>
+      <div class="trusted-badge">
+        <i>✓</i>
+        <span>Instant Access</span>
+      </div>
+      <div class="trusted-badge">
+        <i>✓</i>
+        <span>Verified by Users</span>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-container">
+      <input type="text" id="gameSearch" placeholder="Search for a game...">
+      <div class="search-icon">🔍</div>
+    </div>
+
+    <!-- Grid of games -->
+    <main>
+      <section class="grid" id="gamesGrid">
+        <!-- Cards: 10 games -->
+        <!-- 1 -->
+        <article class="card" data-game="GTA 5" data-file="downloads/gta5.zip" data-category="action" data-size="95 GB" data-trending="true" data-description="Grand Theft Auto V is an action-adventure game set within the fictional state of San Andreas. Experience the story of three uniquely different criminals as they attempt daring heists in the city of Los Santos." data-rating="4.8" data-release="2013">
+          <div class="thumb">
+            <img loading="lazy" src="https://i.pinimg.com/1200x/3b/87/2f/3b872f16b5350f78bca3b6a32d4beac1.jpg" alt="GTA V">
+            <div class="trending-badge">🔥 TRENDING</div>
+          </div>
+          <div class="meta">
+            <div>
+              <div class="game-title">Grand Theft Auto v</div>
+              <div class="game-sub">Action • Open World</div>
+            </div>
+            <div class="actions">
+              <button class="download" data-action="download" aria-label="Download GTA V">Download</button>
+              <button class="play" data-action="preview" aria-label="Preview GTA V">👁️ Preview</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2 -->
+        <article class="card" data-game="Red Dead Redemption 2" data-file="downloads/rdr2.zip" data-category="adventure" data-size="150 GB" data-hot="true" data-description="America, 1899. The end of the wild west era has begun. After a robbery goes badly wrong, Arthur Morgan and the Van der Linde gang are forced to flee. With federal agents and bounty hunters massing, the gang must rob, steal and fight their way across the rugged heartland of America." data-rating="4.9" data-release="2018">
+          <div class="thumb">
+            <img loading="lazy" src="https://i.pinimg.com/1200x/3f/ba/27/3fba27c89040cbee3eae54ded1396b54.jpg" alt="Red Dead">
+            <div class="hot-badge">HOT 🔥</div>
+          </div>
+          <div class="meta">
+            <div>
+              <div class="game-title">Red Dead Redemption 2</div>
+              <div class="game-sub">Adventure • Western</div>
+            </div>
+            <div class="actions">
+              <button class="download" data-action="download" aria-label="Download Red Dead Redemption 2">Download</button>
+              <button class="play" data-action="preview" aria-label="Preview Red Dead Redemption 2">👁️ Preview</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 3 -->
+        <article class="card" data-game="Forza Horizon 5" data-file="downloads/forza5.zip" data-category="racing" data-size="110 GB" data-description="Your Ultimate Horizon Adventure awaits! Explore the vibrant open world landscapes of Mexico with limitless, fun driving action in the world's greatest cars. Experience a deep campaign with hundreds of challenges." data-rating="4.7" data-release="2021">
+          <div class="thumb">
+            <img loading="lazy" src="https://i.pinimg.com/1200x/7f/98/ba/7f98ba11063542030e2e902290091e6f.jpg" alt="Forza">
+          </div>
+          <div class="meta">
+            <div>
+              <div class="game-title">Forza Horizon 5</div>
+              <div class="game-sub">Racing • Simulation</div>
+            </div>
+            <div class="actions">
+              <button class="download" data-action="download" aria-label="Download Forza Horizon 5">Download</button>
+              <button class="play" data-action="preview" aria-label="Preview Forza Horizon 5">👁️ Preview</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 4 -->
+        <article class="card" data-game="BeamNG.drive" data-file="downloads/beamng.zip" data-category="simulation" data-size="20 GB" data-description="A dynamic soft-body physics vehicle simulator capable of doing just about anything. Drive, crash, fly, build, and more in this ultimate vehicle sandbox with realistic physics simulation." data-rating="4.6" data-release="2015">
+          <div class="thumb">
+            <img loading="lazy" src="https://i.pinimg.com/1200x/d8/5e/a6/d85ea6396df76f2750d84222a3d8ba4f.jpg" alt="BeamNG">
+          </div>
+          <div class="meta">
+            <div>
+              <div class="game-title">BeamNG.drive</div>
+              <div class="game-sub">Driving • Soft-body physics</div>
+            </div>
+            <div class="actions">
+              <button class="download" data-action="download" aria-label="Download BeamNG.drive">Download</button>
+              <button class="play" data-action="preview" aria-label="Preview BeamNG.drive">👁️ Preview</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 5 -->
+        <article class="card" data-game="God of War (2018)" data-file="downloads/gow.zip" data-category="action" data-size="70 GB" data-hot="true" data-description="A new beginning for Kratos. Living as a man outside the shadow of the gods, he ventures into the brutal Norse wilds with his son Atreus, fighting to fulfill a deeply personal quest." data-rating="4.9" data-release="2018">
+          <div class="thumb">
+            <img loading="lazy" src="https://i.pinimg.com/736x/ce/8b/83/ce8b8349a2b94a043c2e3e2a1f2e32e4.jpg" alt="God of War">
+            <div class="hot-badge">HOT 🔥</div>
+          </div>
+          <div class="meta">
+            <div>
+              <div class="game-title">God of War 4</div>
+              <div class="game-sub">Action • Story</div>
+            </div>
+            <div class="actions">
+              <button class="download" data-action="download" aria-label="Download God of War">Download</button>
+              <button class="play" data-action="preview" aria-label="Preview God of War">👁️ Preview</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 6 -->
+        <article class="card" data-game="Spider-Man Remastered" data-file="downloads/spiderman.zip" data-category="action" data-size="75 GB" data-description="Swing through New York City as Spider-Man in this critically acclaimed adventure. Experience an original story with iconic villains, stunning visuals, and fluid web-swinging gameplay." data-rating="4.8" data-release="2022">
+          <div class="thumb">
+            <img loading="lazy" src="https://i.pinimg.com/1200x/26/ee/ca/26eeca4dd1b2cd214062ca60e07b9717.jpg" alt="Spider-Man">
+          </div>
+          <div class="meta">
+            <div>
+              <div class="game-title">Spider-Man Remastered</div>
+              <div class="game-sub">Action • Superhero</div>
+            </div>
+            <div class="actions">
+              <button class="download" data-action="download" aria-label="Download Spider-Man">Download</button>
+              <button class="play" data-action="preview" aria-label="Preview Spider-Man">👁️ Preview</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 7 -->
+        <article class="card" data-game="Assassin's Creed Valhalla" data-file="downloads/acv.zip" data-category="rpg" data-size="135 GB" data-description="Become Eivor, a legendary Viking raider, and lead your clan from the harsh shores of Norway to a new home amid the lush farmlands of ninth-century England." data-rating="4.5" data-release="2020">
+          <div class="thumb">
+            <img loading="lazy" src="https://i.pinimg.com/1200x/06/9a/0a/069a0a1e15f20fa198691060a284d87c.jpg" alt="AC Valhalla">
+          </div>
+          <div class="meta">
+            <div>
+              <div class="game-title">Assassin's Creed Valhalla</div>
+              <div class="game-sub">RPG • Historical</div>
+            </div>
+            <div class="actions">
+              <button class="download" data-action="download" aria-label="Download Assassin's Creed Valhalla">Download</button>
+              <button class="play" data-action="preview" aria-label="Preview Assassin's Creed Valhalla">👁️ Preview</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 8 -->
+        <article class="card" data-game="Cyberpunk 2077" data-file="downloads/cyberpunk.zip" data-category="rpg" data-size="70 GB" data-trending="true" data-description="An open-world, action-adventure RPG set in the megalopolis of Night City. Become a cyberpunk, an urban mercenary equipped with cybernetic enhancements, and build your legend on the streets of Night City." data-rating="4.3" data-release="2020">
+          <div class="thumb">
+            <img loading="lazy" src="https://i.pinimg.com/1200x/4e/cc/ef/4eccef63b0bf10dd2ea985fc89831582.jpg" alt="Cyberpunk">
+            <div class="trending-badge">🔥 TRENDING</div>
+          </div>
+          <div class="meta">
+            <div>
+              <div class="game-title">Cyberpunk 2077</div>
+              <div class="game-sub">RPG • Sci-fi</div>
+            </div>
+            <div class="actions">
+              <button class="download" data-action="download" aria-label="Download Cyberpunk 2077">Download</button>
+              <button class="play" data-action="preview" aria-label="Preview Cyberpunk 2077">👁️ Preview</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 9 -->
+        <article class="card" data-game="Need for Speed Heat" data-file="downloads/nfs.zip" data-category="racing" data-size="45 GB" data-description="Hustle by day and risk it all at night in Need for Speed Heat, a thrilling race experience that pits you against a city's rogue police force as you battle your way into street racing's elite." data-rating="4.4" data-release="2019">
+          <div class="thumb">
+            <img loading="lazy" src="https://res.chichicloudgame.com/static/new_game_list/prod/2024-11-20-07-56-21.9651.png" alt="NFS">
+          </div>
+          <div class="meta">
+            <div>
+              <div class="game-title">Need for Speed Heat</div>
+              <div class="game-sub">Racing • Action</div>
+            </div>
+            <div class="actions">
+              <button class="download" data-action="download" aria-label="Download Need for Speed Heat">Download</button>
+              <button class="play" data-action="preview" aria-label="Preview Need for Speed Heat">👁️ Preview</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 10 -->
+        <article class="card" data-game="Minecraft" data-file="downloads/minecraft.zip" data-category="sandbox" data-size="1 GB" data-description="A game about placing blocks and going on adventures. Build anything you can imagine with unlimited resources in Creative mode, or go on grand expeditions in Survival across mysterious lands." data-rating="4.9" data-release="2011">
+          <div class="thumb">
+            <img loading="lazy" src="https://i.pinimg.com/736x/8a/b2/85/8ab28530a0338c241619c4888368f264.jpg" alt="Minecraft">
+          </div>
+          <div class="meta">
+            <div>
+              <div class="game-title">Minecraft</div>
+              <div class="game-sub">Sandbox • Creative</div>
+            </div>
+            <div class="actions">
+              <button class="download" data-action="download" aria-label="Download Minecraft">Download</button>
+              <button class="play" data-action="preview" aria-label="Preview Minecraft">👁️ Preview</button>
+            </div>
+          </div>
+        </article>
+
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <small>© GameHub24 — All rights reserved</small>
+      <small>Privacy • Terms</small>
+    </footer>
+  </div>
+
+  <!-- Game Preview Modal - Fixed and Working -->
+  <div class="preview-modal" id="previewModal">
+    <div class="preview-content">
+      <div class="preview-header">
+        <h3 id="previewTitle">Game Preview</h3>
+        <button class="close" id="closePreview" style="background:transparent;border:none;color:var(--text);font-size:24px;cursor:pointer">×</button>
+      </div>
+      <div class="preview-body">
+        <div class="preview-image">
+          <img id="previewImage" src="" alt="">
+        </div>
+        <div class="preview-info">
+          <h3 id="previewGameTitle"></h3>
+          <div class="preview-meta">
+            <div class="meta-item">
+              <div class="meta-label">📁 Category</div>
+              <div class="meta-value" id="previewCategory"></div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">⭐ Rating</div>
+              <div class="meta-value" id="previewRating"></div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">📅 Release Year</div>
+              <div class="meta-value" id="previewRelease"></div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">💾 Size</div>
+              <div class="meta-value" id="previewSize"></div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">⚡ Status</div>
+              <div class="meta-value" id="previewStatus">Ready to Download</div>
+            </div>
+          </div>
+          <div class="preview-description" id="previewDescription"></div>
+          <div class="preview-actions">
+            <button class="verify-btn" id="previewDownloadBtn" style="flex:1; background: linear-gradient(90deg, #0e4cff, #00d4ff);">⬇️ Download Game Now</button>
+            <button class="preview-close-btn" id="previewCloseBtn">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Original Content Locker Modal -->
+  <div class="modal-backdrop" id="locker">
+    <div class="locker" role="dialog" aria-modal="true" aria-labelledby="lockerTitle">
+      <button class="close" id="modalClose" style="float:right;background:transparent;border:none;color:var(--text);font-size:20px;cursor:pointer" aria-label="Close window">×</button>
+      
+      <div class="trusted-badges" style="margin: -10px -22px 20px -22px; padding: 15px 22px; background: rgba(14,76,255,0.05); border-radius: 16px 16px 0 0; border: none;">
+        <div class="trusted-badge">
+          <i>✓</i>
+          <span>Secure Connection</span>
+        </div>
+        <div class="trusted-badge">
+          <i>✓</i>
+          <span>Verified Provider</span>
+        </div>
+        <div class="trusted-badge">
+          <i>✓</i>
+          <span>No Credit Card Needed</span>
+        </div>
+      </div>
+      
+      <h3 id="lockerTitle">Complete verification to unlock download</h3>
+      <p id="lockerDesc">To access your download, please complete the quick verification step below.</p>
+      
+      <div class="progress-steps" id="progressSteps">
+        <div class="step active" data-step="1">
+          <div class="step-circle">1</div>
+          <div class="step-label">Click Verify</div>
+        </div>
+        <div class="step" data-step="2">
+          <div class="step-circle">2</div>
+          <div class="step-label">Complete Offer</div>
+        </div>
+        <div class="step" data-step="3">
+          <div class="step-circle">3</div>
+          <div class="step-label">Get Download</div>
+        </div>
+      </div>
+
+      <div class="verify" id="verifyBox">
+        <button class="verify-btn" id="verifyBtn">Complete Verification Now</button>
+        <button class="close" id="cancelVerify">Cancel</button>
+      </div>
+
+      <div class="progress" id="progress">
+        <i id="progressBar"></i>
+      </div>
+
+      <div class="unlock" id="unlockBox">
+        <div style="opacity:.9">Download ready: <strong id="unlockedGame"></strong></div>
+        <a href="#" id="downloadLink" download>Download Now</a>
+        <a href="#" id="another" style="text-align:center;color:var(--neon2);font-weight:700;text-decoration:none">Back to selection</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exit Popup -->
+  <div class="exit-popup" id="exitPopup">
+    <h3>Wait! Download is almost ready.</h3>
+    <p>Complete quick verification to unlock your game instantly. Don't miss out!</p>
+    <div class="verify" style="margin-top: 20px;">
+      <button class="verify-btn" onclick="closeExitPopupAndVerify()" style="background: white; color: #0e4cff;">Complete Verification Now</button>
+      <button class="close" onclick="closeExitPopup()" style="background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3);">No Thanks</button>
+    </div>
+  </div>
+
+  <!-- Time Offer -->
+  <div class="time-offer" id="timeOffer" style="display: none;">
+    <div style="font-size:24px;font-weight:bold;margin-bottom:10px;">🚀 FLASH SALE!</div>
+    <div style="margin-bottom:20px;">Complete verification in the next 2 hours and get <strong>3 bonus games FREE</strong>!</div>
+    <div id="offerTimer" class="offer-timer">02:00:00</div>
+    <button onclick="startFlashOffer()" style="padding:15px 30px;background:white;color:#0e4cff;border:none;border-radius:10px;font-weight:bold;font-size:16px;cursor:pointer;width:100%;">CLAIM OFFER</button>
+    <button onclick="closeOffer()" style="margin-top:15px;background:transparent;border:none;color:white;cursor:pointer;">Skip offer</button>
+  </div>
+
+<script>
+  (function(){
+    // Loader System
+    const pageLoader = document.getElementById('pageLoader');
+    const loaderProgress = document.getElementById('loaderProgress');
+    const loaderMessage = document.getElementById('loaderMessage');
+    const gamesCount = document.getElementById('gamesCount');
+    const usersCount = document.getElementById('usersCount');
+    const downloadsCount = document.getElementById('downloadsCount');
+    
+    // NEW LOCKER ELEMENTS
+    const newLockerBackdrop = document.getElementById('newLockerBackdrop');
+    const newLockerGameName = document.getElementById('newLockerGameName');
+    const newLockerGameSize = document.getElementById('newLockerGameSize');
+    const newLockerVerifyBtn = document.getElementById('newLockerVerifyBtn');
+    const newLockerCloseBtn = document.getElementById('newLockerCloseBtn');
+    const verifyBtnText = document.getElementById('verifyBtnText');
+    const newLockerLoader = document.getElementById('newLockerLoader');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    
+    // Original Locker Elements
+    const locker = document.getElementById('locker');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const cancelVerify = document.getElementById('cancelVerify');
+    const progress = document.getElementById('progress');
+    const progressBar = document.getElementById('progressBar');
+    const progressSteps = document.getElementById('progressSteps');
+    const unlockBox = document.getElementById('unlockBox');
+    const unlockedGame = document.getElementById('unlockedGame');
+    const downloadLink = document.getElementById('downloadLink');
+    const another = document.getElementById('another');
+    
+    // Preview Modal Elements
+    const previewModal = document.getElementById('previewModal');
+    const closePreview = document.getElementById('closePreview');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewImage = document.getElementById('previewImage');
+    const previewGameTitle = document.getElementById('previewGameTitle');
+    const previewCategory = document.getElementById('previewCategory');
+    const previewRating = document.getElementById('previewRating');
+    const previewRelease = document.getElementById('previewRelease');
+    const previewSize = document.getElementById('previewSize');
+    const previewDescription = document.getElementById('previewDescription');
+    const previewDownloadBtn = document.getElementById('previewDownloadBtn');
+    const previewCloseBtn = document.getElementById('previewCloseBtn');
+    
+    // Loader messages
+    const messages = [
+      "Loading GameHub24...",
+      "Preparing game catalog...",
+      "Optimizing performance...",
+      "Loading graphics...",
+      "Almost ready...",
+      "Welcome to GameHub24!"
+    ];
+    
+    // Simulate loading process
+    function simulateLoading() {
+      let progress = 0;
+      let messageIndex = 0;
+      
+      function animateCount(element, target, duration = 2000) {
+        let start = 0;
+        const increment = target / (duration / 16);
+        const timer = setInterval(() => {
+          start += increment;
+          if (start >= target) {
+            element.textContent = target;
+            clearInterval(timer);
+          } else {
+            element.textContent = Math.floor(start);
+          }
+        }, 16);
+      }
+      
+      const interval = setInterval(() => {
+        progress += Math.random() * 10 + 5;
+        
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          
+          loaderMessage.textContent = messages[messages.length - 1];
+          loaderProgress.style.width = '100%';
+          
+          setTimeout(() => {
+            pageLoader.classList.add('loader-hidden');
+            document.body.style.opacity = 1;
+            eventTracker.track('page_loaded', 'loader', 100);
+          }, 500);
+        } else {
+          loaderProgress.style.width = progress + '%';
+          
+          const newMessageIndex = Math.floor((progress / 100) * (messages.length - 1));
+          if (newMessageIndex > messageIndex) {
+            messageIndex = newMessageIndex;
+            loaderMessage.textContent = messages[messageIndex];
+          }
+        }
+        
+        if (progress >= 20) animateCount(gamesCount, 10);
+        if (progress >= 50) animateCount(usersCount, 12487);
+        if (progress >= 80) animateCount(downloadsCount, 56321);
+        
+      }, 200);
+      
+      animateCount(gamesCount, 10, 1000);
+    }
+    
+    simulateLoading();
+
+    // Other Elements
+    const modalClose = document.getElementById('modalClose');
+    const howItWorks = document.getElementById('howItWorks');
+    const gameSearch = document.getElementById('gameSearch');
+    const mobileCTA = document.getElementById('mobileCTA');
+    const mobileCTAButton = document.getElementById('mobileCTAButton');
+    const exitPopup = document.getElementById('exitPopup');
+
+    let chosenGame = null;
+    let chosenFile = '#';
+    let chosenFileSize = '';
+    let previewGameData = null;
+    let userDownloads = JSON.parse(localStorage.getItem('userDownloads') || '[]');
+    let userViews = JSON.parse(localStorage.getItem('userViews') || '[]');
+    let exitIntentTriggered = false;
+    let lastScrollTop = 0;
+    let isNewLockerActive = false;
+    
+    // Event Tracking System
+    const eventTracker = {
+      events: [],
+      
+      track: function(action, label, value = null) {
+        const event = {
+          action,
+          label,
+          value,
+          timestamp: new Date().toISOString(),
+          game: chosenGame,
+          userAgent: navigator.userAgent,
+          referrer: document.referrer,
+          url: window.location.href
+        };
+        
+        this.events.push(event);
+        const savedEvents = JSON.parse(localStorage.getItem('trackedEvents') || '[]');
+        savedEvents.push(event);
+        localStorage.setItem('trackedEvents', JSON.stringify(savedEvents.slice(-100)));
+        
+        console.log('Event tracked:', event);
+        
+        this.sendToAnalytics(event);
+        
+        return event;
+      },
+      
+      sendToAnalytics: function(event) {
+        if (typeof gtag === 'function') {
+          gtag('event', event.action, {
+            'event_category': 'GameHub',
+            'event_label': event.label,
+            'value': event.value
+          });
+        }
+        
+        fetch('/api/track', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(event)
+        }).catch(() => {});
+      },
+      
+      getEvents: function() {
+        return this.events;
+      }
+    };
+
+    // Create audio context for sound effects
+    let audioContext;
+    
+    function initAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playClickSound() {
+      initAudio();
+      
+      try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+      } catch (e) {
+        console.log("Audio error:", e);
+      }
+    }
+    
+    // Special sound for Preview button
+    function playPreviewSound() {
+        initAudio();
+        
+        try {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Different tone than download button
+            oscillator.frequency.value = 1200;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.15);
+        } catch (e) {
+            console.log("Preview audio error:", e);
+        }
+    }
+
+    // NEW LOCKER FUNCTIONS
+    function openNewLocker() {
+      playClickSound();
+      
+      // Scroll to top before opening new locker
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      setTimeout(() => {
+        if (!chosenGame) {
+          // If no game selected, pick a random one
+          const games = Array.from(document.querySelectorAll('.card'));
+          const randomGame = games[Math.floor(Math.random() * games.length)];
+          chosenGame = randomGame.getAttribute('data-game');
+          chosenFile = randomGame.getAttribute('data-file');
+          chosenFileSize = randomGame.getAttribute('data-size') || 'Unknown size';
+        }
+        
+        // Update locker content
+        newLockerGameName.textContent = chosenGame;
+        newLockerGameSize.textContent = `Size: ${chosenFileSize}`;
+        verifyBtnText.textContent = 'Complete Verification Now';
+        
+        // Reset steps and button state
+        step1.classList.add('active');
+        step1.classList.remove('completed');
+        step2.classList.remove('active', 'completed');
+        step3.classList.remove('active', 'completed');
+        
+        newLockerVerifyBtn.classList.remove('loading');
+        newLockerVerifyBtn.disabled = false;
+        newLockerLoader.classList.remove('active');
+        
+        // Show locker
+        newLockerBackdrop.classList.add('active');
+        isNewLockerActive = true;
+        
+        // Hide mobile CTA
+        if (mobileCTA) mobileCTA.style.display = 'none';
+        
+        // Track event
+        eventTracker.track('verification_locker_opened', chosenGame);
+      }, 300);
+    }
+    
+    function closeNewLocker() {
+      playClickSound();
+      newLockerBackdrop.classList.remove('active');
+      isNewLockerActive = false;
+      eventTracker.track('verification_locker_closed', chosenGame);
+    }
+    
+    function startNewVerification() {
+      playClickSound();
+      eventTracker.track('external_verification_started', chosenGame);
+      
+      // Update UI
+      verifyBtnText.textContent = 'Processing...';
+      newLockerVerifyBtn.classList.add('loading');
+      newLockerVerifyBtn.disabled = true;
+      newLockerLoader.classList.add('active');
+      
+      // Animate steps
+      step1.classList.remove('active');
+      step1.classList.add('completed');
+      step2.classList.add('active');
+      
+      // Call the external verification function (_Ht) from the new locker script
+      if (typeof _Ht === 'function') {
+        setTimeout(() => {
+          // Call the external locker function
+          _Ht();
+          
+          // Track that we called the external function
+          eventTracker.track('external_locker_called', chosenGame);
+          
+          // Simulate verification completion after 3 seconds
+          setTimeout(() => {
+            // Mark step 2 as completed and move to step 3
+            step2.classList.remove('active');
+            step2.classList.add('completed');
+            step3.classList.add('active');
+            
+            // Update button to show download ready
+            verifyBtnText.textContent = 'Download Ready!';
+            newLockerVerifyBtn.classList.remove('loading');
+            newLockerVerifyBtn.disabled = false;
+            newLockerLoader.classList.remove('active');
+            
+            // Change button function to start download
+            newLockerVerifyBtn.onclick = function() {
+              startDownload(chosenGame, chosenFile);
+            };
+            
+            eventTracker.track('verification_completed', chosenGame);
+          }, 3000);
+        }, 500);
+      } else {
+        // Fallback if _Ht is not available
+        console.log("External verification function _Ht not found");
+        
+        setTimeout(() => {
+          step2.classList.remove('active');
+          step2.classList.add('completed');
+          step3.classList.add('active');
+          
+          verifyBtnText.textContent = 'Download Ready!';
+          newLockerVerifyBtn.classList.remove('loading');
+          newLockerVerifyBtn.disabled = false;
+          newLockerLoader.classList.remove('active');
+          
+          newLockerVerifyBtn.onclick = function() {
+            startDownload(chosenGame, chosenFile);
+          };
+          
+          eventTracker.track('verification_completed_fallback', chosenGame);
+        }, 2000);
+      }
+    }
+    
+    function startDownload(gameName, file) {
+      playClickSound();
+      eventTracker.track('download_started', gameName);
+      
+      // Create download link
+      const downloadLink = document.createElement('a');
+      downloadLink.href = file;
+      downloadLink.download = `${gameName}.zip`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
+      // Show download progress
+      showDownloadProgress();
+      
+      // Close locker after 1 second
+      setTimeout(() => {
+        closeNewLocker();
+      }, 1000);
+    }
+    
+    // Mobile CTA Scroll Behavior
+    function handleScroll() {
+      const st = window.pageYOffset || document.documentElement.scrollTop;
+      const isMobile = window.innerWidth <= 768;
+      
+      if (isMobile) {
+        if (st > lastScrollTop && st > 100) {
+          if (mobileCTA) mobileCTA.style.display = 'flex';
+        } else if (st < lastScrollTop && st < 50) {
+          if (mobileCTA) mobileCTA.style.display = 'none';
+        }
+      } else {
+        if (mobileCTA) mobileCTA.style.display = 'none';
+      }
+      
+      lastScrollTop = st <= 0 ? 0 : st;
+    }
+    
+    // Exit Intent Detection
+    function setupExitIntent() {
+      let mouseY = 0;
+      
+      document.addEventListener('mouseout', function(e) {
+        if (!e.relatedTarget && !exitIntentTriggered && mouseY < 10) {
+          showExitPopup();
+        }
+      });
+      
+      document.addEventListener('mousemove', function(e) {
+        mouseY = e.clientY;
+      });
+      
+      window.addEventListener('beforeunload', function() {
+        if (!exitIntentTriggered && Math.random() < 0.3) {
+          showExitPopup();
+          return "Wait! Your download is almost ready. Complete verification to unlock.";
+        }
+      });
+    }
+    
+    // Exit Popup Functions
+    function showExitPopup() {
+      if (!exitIntentTriggered && !isNewLockerActive) {
+        exitIntentTriggered = true;
+        exitPopup.classList.add('active');
+        eventTracker.track('exit_popup_shown', 'exit_intent');
+      }
+    }
+    
+    function closeExitPopup() {
+      exitPopup.classList.remove('active');
+      eventTracker.track('exit_popup_dismissed', chosenGame);
+    }
+    
+    function closeExitPopupAndVerify() {
+      closeExitPopup();
+      // Open the new locker when user clicks verification in exit popup
+      openNewLocker();
+      eventTracker.track('exit_popup_accepted', 'exit_intent');
+    }
+    
+    // ==============================================
+    // FIXED GAME PREVIEW MODAL FUNCTIONS
+    // ==============================================
+    function openGamePreview(card) {
+      playPreviewSound();
+      
+      // Get game data from the card
+      previewGameData = {
+        title: card.getAttribute('data-game'),
+        image: card.querySelector('img').src,
+        category: card.getAttribute('data-category'),
+        description: card.getAttribute('data-description') || 'No description available.',
+        rating: card.getAttribute('data-rating') || '4.5',
+        release: card.getAttribute('data-release') || 'Unknown',
+        size: card.getAttribute('data-size') || 'Unknown',
+        file: card.getAttribute('data-file'),
+        isTrending: card.hasAttribute('data-trending'),
+        isHot: card.hasAttribute('data-hot')
+      };
+      
+      // Update preview modal content
+      previewTitle.textContent = `Game Preview: ${previewGameData.title}`;
+      previewGameTitle.textContent = previewGameData.title;
+      previewImage.src = previewGameData.image;
+      previewCategory.textContent = previewGameData.category;
+      previewRating.textContent = `${previewGameData.rating}/5 ⭐`;
+      previewRelease.textContent = previewGameData.release;
+      previewSize.textContent = previewGameData.size;
+      previewDescription.textContent = previewGameData.description;
+      
+      // Add special badges
+      let statusText = 'Ready to Download';
+      if (previewGameData.isTrending) statusText = '🔥 Currently Trending';
+      if (previewGameData.isHot) statusText = '🔥 Most Popular';
+      
+      document.getElementById('previewStatus').textContent = statusText;
+      
+      // Show the modal
+      previewModal.classList.add('active');
+      
+      // Track event
+      eventTracker.track('preview_opened', previewGameData.title, {
+        trending: previewGameData.isTrending,
+        hot: previewGameData.isHot
+      });
+      
+      // Highlight the active card
+      card.classList.add('preview-active');
+      setTimeout(() => {
+        card.classList.remove('preview-active');
+      }, 1000);
+    }
+    
+    function closeGamePreview() {
+      playClickSound();
+      previewModal.classList.remove('active');
+    }
+    
+    function previewDownloadGame() {
+      if (previewGameData) {
+        playClickSound();
+        closeGamePreview();
+        // Set chosen game and open locker
+        chosenGame = previewGameData.title;
+        chosenFile = previewGameData.file;
+        chosenFileSize = previewGameData.size;
+        // Open the original locker first
+        openLocker(previewGameData.title, previewGameData.file);
+      }
+    }
+
+    // Show Download Progress Overlay
+    function showDownloadProgress() {
+      const existingOverlay = document.querySelector('.progress-overlay');
+      if (existingOverlay) existingOverlay.remove();
+      
+      const progressOverlay = document.createElement('div');
+      progressOverlay.className = 'progress-overlay';
+      progressOverlay.innerHTML = `
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-weight:bold;">Downloading ${chosenGame}</span>
+          <span id="progressPercent" style="color:#00d4ff;font-weight:bold;">0%</span>
+        </div>
+        <div style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin-bottom:10px;">
+          <div id="progressFill" style="width:0%;height:100%;background:linear-gradient(90deg,#0e4cff,#00d4ff);transition:width 0.3s;"></div>
+        </div>
+        <div style="font-size:12px;opacity:0.7;display:flex;justify-content:space-between;">
+          <span>Size: ${chosenFileSize}</span>
+          <span id="downloadSpeed">Preparing...</span>
+        </div>
+        <button onclick="this.parentElement.remove()" style="position:absolute;top:5px;right:5px;background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;font-size:16px;">×</button>
+      `;
+      
+      document.body.appendChild(progressOverlay);
+      
+      let progress = 0;
+      const speeds = ['2.5 MB/s', '3.1 MB/s', '4.2 MB/s', '2.8 MB/s'];
+      let speedIndex = 0;
+      
+      const interval = setInterval(() => {
+        progress += Math.random() * 8 + 2;
+        speedIndex = (speedIndex + 1) % speeds.length;
+        
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          
+          setTimeout(() => {
+            progressOverlay.remove();
+            showDownloadComplete();
+          }, 1000);
+        }
+        
+        const progressPercent = document.getElementById('progressPercent');
+        const progressFill = document.getElementById('progressFill');
+        const downloadSpeed = document.getElementById('downloadSpeed');
+        
+        if (progressPercent) progressPercent.textContent = Math.min(Math.round(progress), 100) + '%';
+        if (progressFill) progressFill.style.width = Math.min(progress, 100) + '%';
+        if (downloadSpeed) downloadSpeed.textContent = speeds[speedIndex];
+      }, 300);
+      
+      eventTracker.track('download_start', chosenGame, Math.round(progress));
+    }
+    
+    function showDownloadComplete() {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position:fixed;
+        bottom:20px;
+        right:20px;
+        background:linear-gradient(90deg,#00d4ff,#00ffaa);
+        color:#001;
+        padding:15px;
+        border-radius:12px;
+        z-index:1000;
+        max-width:300px;
+        box-shadow:0 10px 30px rgba(0,212,255,0.3);
+        animation:slideIn 0.3s ease;
+      `;
+      notification.innerHTML = `
+        <div style="font-weight:bold;margin-bottom:5px;">🎮 Download Complete!</div>
+        <div>${chosenGame} has been downloaded successfully.</div>
+        <button onclick="this.parentElement.remove()" style="position:absolute;top:5px;right:5px;background:none;border:none;color:#001;cursor:pointer;">×</button>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 5000);
+      
+      eventTracker.track('download_complete', chosenGame, 100);
+      
+      if (!userDownloads.includes(chosenGame)) {
+        userDownloads.push(chosenGame);
+        localStorage.setItem('userDownloads', JSON.stringify(userDownloads));
+      }
+    }
+
+    // Show Time-Limited Offer
+    function showTimeLimitedOffer() {
+      const existingOffer = document.getElementById('timeOffer');
+      if (existingOffer) return;
+      
+      const lastOfferDate = localStorage.getItem('lastOfferDate');
+      const today = new Date().toDateString();
+      if (lastOfferDate === today) return;
+      
+      const offerEnd = new Date();
+      offerEnd.setHours(offerEnd.getHours() + 2);
+      
+      const offerHTML = `
+        <div id="timeOffer" class="time-offer">
+          <div style="font-size:24px;font-weight:bold;margin-bottom:10px;">🚀 FLASH SALE!</div>
+          <div style="margin-bottom:20px;">Complete verification in the next 2 hours and get <strong>3 bonus games FREE</strong>!</div>
+          <div id="offerTimer" class="offer-timer">02:00:00</div>
+          <button onclick="startFlashOffer()" style="padding:15px 30px;background:white;color:#0e4cff;border:none;border-radius:10px;font-weight:bold;font-size:16px;cursor:pointer;width:100%;">CLAIM OFFER</button>
+          <button onclick="closeOffer()" style="margin-top:15px;background:transparent;border:none;color:white;cursor:pointer;">Skip offer</button>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', offerHTML);
+      
+      const timer = setInterval(() => {
+        const now = new Date();
+        const diff = offerEnd - now;
+        
+        if (diff <= 0) {
+          clearInterval(timer);
+          const offer = document.getElementById('timeOffer');
+          if (offer) offer.remove();
+          return;
+        }
+        
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        const timerElement = document.getElementById('offerTimer');
+        if (timerElement) {
+          timerElement.textContent = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+      }, 1000);
+      
+      eventTracker.track('offer_displayed', 'flash_sale', 2);
+      localStorage.setItem('lastOfferDate', today);
+    }
+    
+    function startFlashOffer() {
+      eventTracker.track('offer_accepted', 'flash_sale');
+      alert('🎉 Flash sale activated! Complete verification to get your 3 bonus games!');
+      closeOffer();
+    }
+    
+    function closeOffer() {
+      const offer = document.getElementById('timeOffer');
+      if (offer) offer.remove();
+      eventTracker.track('offer_dismissed', 'flash_sale');
+    }
+
+    // Search functionality
+    function setupSearch() {
+      if (gameSearch) {
+        gameSearch.addEventListener('input', function(e) {
+          const searchTerm = e.target.value.toLowerCase();
+          const cards = document.querySelectorAll('.card');
+          
+          cards.forEach(card => {
+            const gameTitle = card.querySelector('.game-title').textContent.toLowerCase();
+            if (gameTitle.includes(searchTerm)) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+          
+          if (searchTerm.length >= 2) {
+            eventTracker.track('search_performed', searchTerm);
+          }
+        });
+      }
+    }
+
+    // ==============================================
+    // ORIGINAL LOCKER FUNCTION
+    // ==============================================
+    function openLocker(gameName, file){
+      playClickSound();
+      
+      // FIRST: Scroll to top before showing the locker
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      // Wait a bit for scroll to start before showing locker
+      setTimeout(() => {
+        chosenGame = gameName || 'Game';
+        chosenFile = file || '#';
+        chosenFileSize = document.querySelector(`[data-game="${gameName}"]`)?.getAttribute('data-size') || 'Unknown size';
+        
+        if (!userViews.includes(chosenGame)) {
+          userViews.push(chosenGame);
+          localStorage.setItem('userViews', JSON.stringify(userViews));
+        }
+        
+        eventTracker.track('game_viewed', chosenGame);
+        
+        const steps = progressSteps.querySelectorAll('.step');
+        steps.forEach(step => step.classList.remove('active'));
+        steps[0].classList.add('active');
+        
+        setTimeout(animateProgressSteps, 500);
+        
+        document.getElementById('lockerTitle').textContent = `Verify to download: ${chosenGame}`;
+        document.getElementById('lockerDesc').textContent = 'To access your download, please complete the quick verification step below.';
+        verifyBtn.textContent = 'Complete Verification Now';
+        cancelVerify.textContent = 'Cancel';
+        document.querySelector('#unlockBox div').innerHTML = `Download ready: <strong>${chosenGame}</strong>`;
+        document.getElementById('downloadLink').textContent = 'Download Now';
+        document.getElementById('another').textContent = 'Back to selection';
+        
+        progress.style.display = 'none';
+        progressBar.style.width = '0%';
+        unlockBox.style.display = 'none';
+        verifyBtn.style.display = 'block';
+        cancelVerify.style.display = 'block';
+        locker.classList.add('active');
+        
+        if (mobileCTA) mobileCTA.style.display = 'none';
+        
+        if (Math.random() < 0.3) {
+          setTimeout(showTimeLimitedOffer, 1000);
+        }
+      }, 300);
+    }
+    
+    function animateProgressSteps() {
+      const steps = progressSteps.querySelectorAll('.step');
+      let currentStep = 0;
+      
+      const stepInterval = setInterval(() => {
+        if (currentStep > 0) {
+          steps[currentStep - 1].classList.remove('active');
+        }
+        
+        if (currentStep < steps.length) {
+          steps[currentStep].classList.add('active');
+          currentStep++;
+        } else {
+          clearInterval(stepInterval);
+        }
+      }, 800);
+    }
+
+    function closeLocker(){
+      playClickSound();
+      locker.classList.remove('active');
+      eventTracker.track('locker_closed', chosenGame);
+    }
+
+    // ==============================================
+    // ATTACH EVENT LISTENERS TO GAME CARDS
+    // ==============================================
+    document.querySelectorAll('.card').forEach(card => {
+      const dl = card.querySelector('.download');
+      const play = card.querySelector('.play');
+
+      const game = card.getAttribute('data-game');
+      const file = card.getAttribute('data-file');
+
+      // Download button click
+      dl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        eventTracker.track('download_button_clicked', game);
+        // OPEN ORIGINAL LOCKER FIRST
+        openLocker(game, file);
+      });
+
+      // Preview button click - FIXED
+      play.addEventListener('click', (e) => {
+        e.stopPropagation();
+        eventTracker.track('preview_button_clicked', game);
+        // Open the preview modal
+        openGamePreview(card);
+      });
+
+      // Whole card click
+      card.addEventListener('click', () => {
+        eventTracker.track('card_clicked', game);
+        openLocker(game, file);
+      });
+      
+      // Add hover effects for the card
+      card.addEventListener('mouseenter', () => {
+        if (!previewModal.classList.contains('active')) {
+          card.style.transform = 'translateY(-5px)';
+          card.style.boxShadow = '0 10px 30px rgba(255, 107, 107, 0.2)';
+        }
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        if (!previewModal.classList.contains('active')) {
+          card.style.transform = 'translateY(0)';
+          card.style.boxShadow = '';
+        }
+      });
+      
+      // Special effects for Preview button
+      const playBtn = card.querySelector('.play');
+      playBtn.addEventListener('mouseenter', () => {
+        playBtn.style.background = 'linear-gradient(90deg, #ff8e53, #ff6b6b)';
+      });
+      
+      playBtn.addEventListener('mouseleave', () => {
+        playBtn.style.background = 'linear-gradient(90deg, #ff6b6b, #ff8e53)';
+      });
+    });
+
+    // ==============================================
+    // EVENT HANDLERS FOR MODALS AND BUTTONS
+    // ==============================================
+    
+    // New Locker Event Handlers
+    newLockerCloseBtn.addEventListener('click', closeNewLocker);
+    newLockerVerifyBtn.addEventListener('click', startNewVerification);
+    newLockerBackdrop.addEventListener('click', (e) => {
+      if(e.target === newLockerBackdrop) closeNewLocker();
+    });
+    
+    // Original Locker Event Handlers
+    verifyBtn.addEventListener('click', function() {
+      playClickSound();
+      eventTracker.track('verification_button_clicked', chosenGame);
+      // Close original locker and open new locker
+      closeLocker();
+      openNewLocker();
+    });
+    
+    cancelVerify.addEventListener('click', closeLocker);
+    modalClose.addEventListener('click', closeLocker);
+    another.addEventListener('click', () => {
+      eventTracker.track('back_to_selection', chosenGame);
+      closeLocker();
+    });
+    
+    // Preview Modal Event Handlers - FIXED
+    closePreview.addEventListener('click', closeGamePreview);
+    previewCloseBtn.addEventListener('click', closeGamePreview);
+    previewDownloadBtn.addEventListener('click', previewDownloadGame);
+    
+    // Close preview when clicking outside
+    previewModal.addEventListener('click', (e) => {
+      if (e.target === previewModal) {
+        closeGamePreview();
+      }
+    });
+
+    // How it works
+    howItWorks.addEventListener('click', () => {
+      eventTracker.track('how_it_works_clicked', 'info');
+      chosenGame = 'How It Works';
+      chosenFile = '#';
+      openLocker('How It Works', '#');
+    });
+
+    // Show all games
+    document.getElementById('showAll').addEventListener('click', () => { 
+      playClickSound();
+      eventTracker.track('show_all_clicked', 'navigation');
+      window.scrollTo({top: document.getElementById('gamesGrid').offsetTop - 20, behavior:'smooth'}) 
+    });
+
+    // Setup
+    setupSearch();
+    setupExitIntent();
+    
+    // Scroll handler for mobile CTA
+    window.addEventListener('scroll', handleScroll);
+    
+    // Close old modal on backdrop click
+    locker.addEventListener('click', (e) => {
+      if(e.target === locker) closeLocker();
+    });
+    
+    // Close exit popup on backdrop click
+    exitPopup.addEventListener('click', (e) => {
+      if(e.target === exitPopup) closeExitPopup();
+    });
+
+    // Close with escape key
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape') {
+        closeLocker();
+        closeNewLocker();
+        closeExitPopup();
+        closeGamePreview();
+      }
+    });
+
+    // Initialize audio on first user interaction
+    document.addEventListener('click', function initAudioOnClick() {
+      initAudio();
+      document.removeEventListener('click', initAudioOnClick);
+    });
+
+    // Initialize everything after loader
+    function initializeApp() {
+      eventTracker.track('page_view', 'homepage');
+      
+      if (Math.random() < 0.2) {
+        setTimeout(showTimeLimitedOffer, 3000);
+      }
+    }
+
+    // Start app after loader
+    setTimeout(initializeApp, 1000);
+
+  })();
+</script>
+</body>
+</html>
