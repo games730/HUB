@@ -8,7 +8,7 @@
 
 <!-- Basic Neon theme + performance friendly -->
 <style>
-  /* Loader Styles */
+  /* NEW LOADER - From Uiverse.io by mobinkakei */
   #pageLoader {
     position: fixed;
     top: 0;
@@ -17,7 +17,6 @@
     height: 100%;
     background: #060712;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     z-index: 999999;
@@ -29,115 +28,150 @@
     visibility: hidden;
   }
   
-  .loader-logo {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 30px;
+  .loader {
+    --path: #0e4cff;
+    --dot: #00d4ff;
+    --duration: 3s;
+    width: 44px;
+    height: 44px;
     position: relative;
+    margin: 0 16px;
   }
   
-  .loader-logo-inner {
+  .loader:before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    position: absolute;
+    display: block;
+    background: var(--dot);
+    top: 37px;
+    left: 19px;
+    transform: translate(-18px, -18px);
+    animation: dotRect var(--duration) cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
+  }
+  
+  .loader svg {
+    display: block;
     width: 100%;
     height: 100%;
-    border-radius: 20px;
-    background: linear-gradient(135deg, #0e4cff, #00d4ff);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: logoPulse 2s infinite ease-in-out;
   }
   
-  .loader-logo-inner span {
-    font-size: 40px;
-    font-weight: 900;
-    color: #001;
+  .loader svg rect,
+  .loader svg polygon,
+  .loader svg circle {
+    fill: none;
+    stroke: var(--path);
+    stroke-width: 10px;
+    stroke-linejoin: round;
+    stroke-linecap: round;
   }
   
-  .loader-progress {
-    width: 200px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 20px;
+  .loader svg polygon {
+    stroke-dasharray: 145 76 145 76;
+    stroke-dashoffset: 0;
+    animation: pathTriangle var(--duration) cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
   }
   
-  .loader-progress-bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #0e4cff, #00d4ff);
-    border-radius: 2px;
-    transition: width 0.3s ease;
+  .loader svg rect {
+    stroke-dasharray: 192 64 192 64;
+    stroke-dashoffset: 0;
+    animation: pathRect 3s cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
+  }
+  
+  .loader svg circle {
+    stroke-dasharray: 150 50 150 50;
+    stroke-dashoffset: 75;
+    animation: pathCircle var(--duration) cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
+  }
+  
+  .loader.triangle {
+    width: 48px;
+  }
+  
+  .loader.triangle:before {
+    left: 21px;
+    transform: translate(-10px, -18px);
+    animation: dotTriangle var(--duration) cubic-bezier(0.785, 0.135, 0.15, 0.86) infinite;
+  }
+  
+  @keyframes pathTriangle {
+    33% {
+      stroke-dashoffset: 74;
+    }
+    66% {
+      stroke-dashoffset: 147;
+    }
+    100% {
+      stroke-dashoffset: 221;
+    }
+  }
+  
+  @keyframes dotTriangle {
+    33% {
+      transform: translate(0, 0);
+    }
+    66% {
+      transform: translate(10px, -18px);
+    }
+    100% {
+      transform: translate(-10px, -18px);
+    }
+  }
+  
+  @keyframes pathRect {
+    25% {
+      stroke-dashoffset: 64;
+    }
+    50% {
+      stroke-dashoffset: 128;
+    }
+    75% {
+      stroke-dashoffset: 192;
+    }
+    100% {
+      stroke-dashoffset: 256;
+    }
+  }
+  
+  @keyframes dotRect {
+    25% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(18px, -18px);
+    }
+    75% {
+      transform: translate(0, -36px);
+    }
+    100% {
+      transform: translate(-18px, -18px);
+    }
+  }
+  
+  @keyframes pathCircle {
+    25% {
+      stroke-dashoffset: 125;
+    }
+    50% {
+      stroke-dashoffset: 175;
+    }
+    75% {
+      stroke-dashoffset: 225;
+    }
+    100% {
+      stroke-dashoffset: 275;
+    }
   }
   
   .loader-text {
+    position: absolute;
+    bottom: 30%;
     color: #eaf2ff;
     font-size: 16px;
-    margin-bottom: 30px;
     text-align: center;
-    min-height: 24px;
-  }
-  
-  .loader-stats {
-    display: flex;
-    gap: 30px;
-    margin-top: 20px;
-  }
-  
-  .loader-stat {
-    text-align: center;
-  }
-  
-  .loader-stat-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: #00d4ff;
-    margin-bottom: 5px;
-  }
-  
-  .loader-stat-label {
-    font-size: 12px;
-    color: rgba(234, 242, 255, 0.7);
-  }
-  
-  .loader-dots {
-    display: flex;
-    gap: 8px;
-    margin-top: 20px;
-  }
-  
-  .loader-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: rgba(14, 76, 255, 0.3);
-    animation: dotPulse 1.4s infinite ease-in-out both;
-  }
-  
-  .loader-dot:nth-child(1) { animation-delay: -0.32s; }
-  .loader-dot:nth-child(2) { animation-delay: -0.16s; }
-  .loader-dot:nth-child(3) { animation-delay: 0s; }
-  
-  @keyframes logoPulse {
-    0%, 100% {
-      transform: scale(1);
-      box-shadow: 0 0 20px rgba(14, 76, 255, 0.3);
-    }
-    50% {
-      transform: scale(1.05);
-      box-shadow: 0 0 40px rgba(14, 76, 255, 0.5);
-    }
-  }
-  
-  @keyframes dotPulse {
-    0%, 80%, 100% { 
-      transform: scale(0.8);
-      background: rgba(14, 76, 255, 0.3);
-    }
-    40% { 
-      transform: scale(1);
-      background: linear-gradient(90deg, #0e4cff, #00d4ff);
-    }
+    width: 100%;
   }
   
   @keyframes fadeIn {
@@ -199,6 +233,8 @@
     align-items:center;
     justify-content:space-between;
     gap:16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
   }
   .brand{
     display:flex;gap:12px;align-items:center;
@@ -233,33 +269,186 @@
   }
   .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text)}
 
-  /* Search */
+  /* UPDATED SEARCH BAR - From Uiverse.io by ARUSH221617 */
   .search-container {
-    margin: 20px 0;
+    margin: 25px 0 35px 0;
+    position: relative;
+    width: 100%;
+  }
+  
+  .flex {
+    display: flex;
+  }
+  
+  .items-center {
+    align-items: center;
+  }
+  
+  .max-w-lg {
+    max-width: 36rem;
+  }
+  
+  .mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  .relative {
     position: relative;
   }
-  .search-container input {
+  
+  .w-full {
     width: 100%;
-    padding: 12px 45px 12px 16px;
-    border-radius: 12px;
+  }
+  
+  .absolute {
+    position: absolute;
+  }
+  
+  .inset-y-0 {
+    top: 0;
+    bottom: 0;
+  }
+  
+  .start-0 {
+    left: 0;
+  }
+  
+  .ps-3 {
+    padding-left: 0.75rem;
+  }
+  
+  .pointer-events-none {
+    pointer-events: none;
+  }
+  
+  .w-4 {
+    width: 1rem;
+  }
+  
+  .h-4 {
+    height: 1rem;
+  }
+  
+  .text-gray-400 {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  /* Custom search input styling */
+  #voice-search {
     background: var(--card);
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     color: var(--text);
     font-size: 14px;
-    transition: border 0.2s ease;
+    border-radius: 12px;
+    padding: 14px 45px 14px 40px;
+    width: 100%;
+    transition: all 0.3s ease;
+    font-family: inherit;
   }
-  .search-container input:focus {
+  
+  #voice-search:focus {
     outline: none;
-    border: 1px solid rgba(14,76,255,0.4);
+    border-color: var(--neon1);
+    box-shadow: 0 0 0 2px rgba(14, 76, 255, 0.2);
+    background: rgba(13, 21, 48, 0.8);
   }
-  .search-icon {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(255,255,255,0.5);
+  
+  #voice-search::placeholder {
+    color: rgba(234, 242, 255, 0.5);
   }
-
+  
+  .end-0 {
+    right: 0;
+  }
+  
+  .pe-3 {
+    padding-right: 0.75rem;
+  }
+  
+  /* Microphone button */
+  #voice-search-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  #voice-search-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: scale(1.1);
+  }
+  
+  #voice-search-btn:hover svg {
+    color: var(--neon2);
+  }
+  
+  #voice-search-btn.active {
+    background: rgba(255, 0, 0, 0.2);
+    animation: pulse-red 1.5s infinite;
+  }
+  
+  @keyframes pulse-red {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(255, 0, 0, 0);
+    }
+  }
+  
+  /* Search button */
+  #search-btn {
+    background: linear-gradient(90deg, var(--neon1), var(--neon2));
+    border: none;
+    color: #001;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(14, 76, 255, 0.3);
+    font-size: 14px;
+    min-width: 120px;
+  }
+  
+  #search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(14, 76, 255, 0.4);
+  }
+  
+  #search-btn:active {
+    transform: translateY(0);
+  }
+  
+  #search-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
+  }
+  
   /* Grid */
   .grid{
     display:grid;
@@ -300,14 +489,56 @@
   .game-sub{opacity:.75;font-size:13px}
   .actions{display:flex;gap:8px;align-items:center}
   
-  /* Download button */
-  .download{flex:1;padding:10px 12px;border-radius:8px;border:none;background:transparent;color:var(--neon1);font-weight:800;border:1px solid rgba(14,76,255,0.18);cursor:pointer;transition:background 0.2s ease}
-  .download:hover{background:rgba(14,76,255,0.04)}
+  /* UPDATED DOWNLOAD BUTTON - Enhanced */
+  .download{
+    flex:1;
+    padding:12px 16px;
+    border-radius:10px;
+    border:none;
+    background:linear-gradient(90deg, #0e4cff, #0088ff);
+    color:#001;
+    font-weight:800;
+    cursor:pointer;
+    transition:all 0.3s ease;
+    box-shadow:0 4px 15px rgba(14, 76, 255, 0.3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    position:relative;
+    overflow:hidden;
+    font-size:13px;
+  }
   
-  /* Enhanced Preview button */
+  .download::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.7s ease;
+  }
+  
+  .download:hover {
+    transform:translateY(-3px);
+    box-shadow:0 8px 25px rgba(14, 76, 255, 0.4);
+    background:linear-gradient(90deg, #0088ff, #0e4cff);
+  }
+  
+  .download:hover::before {
+    left: 100%;
+  }
+  
+  .download:active {
+    transform:translateY(0);
+  }
+  
+  /* UPDATED PREVIEW BUTTON - Enhanced */
   .play{
-    padding:10px 12px;
-    border-radius:8px;
+    padding:12px 16px;
+    border-radius:10px;
     border:none;
     background:linear-gradient(90deg, #ff6b6b, #ff8e53);
     color:#001;
@@ -319,12 +550,30 @@
     align-items:center;
     justify-content:center;
     gap:6px;
+    position:relative;
+    overflow:hidden;
+    font-size:13px;
+  }
+  
+  .play::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.7s ease;
   }
   
   .play:hover{
-    transform:translateY(-2px) scale(1.05);
-    box-shadow:0 6px 20px rgba(255, 107, 107, 0.4);
+    transform:translateY(-3px) scale(1.05);
+    box-shadow:0 8px 25px rgba(255, 107, 107, 0.4);
     background:linear-gradient(90deg, #ff8e53, #ff6b6b);
+  }
+  
+  .play:hover::before {
+    left: 100%;
   }
   
   .play:active{
@@ -376,6 +625,368 @@
     color: #00d4ff;
     font-weight: bold;
   }
+
+  /* MODIFIED LOCKER MODAL - Modern Card Design */
+.modal-backdrop{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+.modal-backdrop.active{
+  display: flex;
+  animation: fadeIn 0.3s ease;
+}
+
+.locker{
+  width: 100%;
+  max-width: 400px;
+  background: linear-gradient(145deg, rgba(13, 21, 48, 0.95), rgba(8, 16, 41, 0.95));
+  border-radius: 20px;
+  padding: 25px;
+  border: 1px solid rgba(14, 76, 255, 0.2);
+  box-shadow: 
+    0 20px 60px rgba(2, 6, 23, 0.8),
+    0 0 0 1px rgba(14, 76, 255, 0.1) inset,
+    0 0 60px rgba(14, 76, 255, 0.1);
+  animation: modalCardAppear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  z-index: 10001;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+.locker::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0e4cff, #00d4ff);
+  z-index: 1;
+}
+
+.locker::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(14, 76, 255, 0.1) 0%, transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes modalCardAppear {
+  from { 
+    opacity: 0; 
+    transform: scale(0.9) translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
+.locker h3{
+  font-size: 20px;
+  margin-bottom: 10px;
+  background: linear-gradient(90deg, #0e4cff, #00d4ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-align: center;
+  font-weight: 700;
+}
+
+.locker p{
+  opacity: .85;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(234, 242, 255, 0.8);
+}
+
+/* Progress Step Bar - Modern Compact Design */
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin: 25px 0;
+  position: relative;
+}
+
+.progress-steps::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: rgba(14, 76, 255, 0.1);
+  transform: translateY(-50%);
+  z-index: 0;
+  border-radius: 1px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(14, 76, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  color: rgba(234, 242, 255, 0.7);
+}
+
+.step.active .step-circle {
+  background: linear-gradient(135deg, #0e4cff, #00d4ff);
+  border-color: transparent;
+  box-shadow: 0 0 15px rgba(14, 76, 255, 0.4);
+  color: #001;
+  font-weight: 700;
+  transform: scale(1.1);
+}
+
+.step-label {
+  font-size: 11px;
+  opacity: 0.6;
+  text-align: center;
+  color: rgba(234, 242, 255, 0.7);
+  font-weight: 500;
+}
+
+.step.active .step-label {
+  opacity: 1;
+  font-weight: 600;
+  color: #00d4ff;
+}
+
+/* Verify Section - Modern Buttons */
+.verify{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 25px;
+}
+
+.verify .verify-btn{
+  flex: 1;
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(90deg, #0e4cff, #00d4ff);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  position: relative;
+  overflow: hidden;
+  color: #001;
+  text-align: center;
+}
+
+.verify .verify-btn:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(14, 76, 255, 0.3);
+}
+
+.verify .verify-btn:active{
+  transform: translateY(0);
+}
+
+.verify .verify-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transform: rotate(45deg);
+  animation: shine 3s infinite linear;
+  opacity: 0.5;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.verify .close{
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 15px;
+  min-width: 100px;
+  text-align: center;
+}
+
+.verify .close:hover{
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Progress Bar - Subtle Design */
+.progress{
+  height: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 20px 0;
+  display: none;
+}
+.progress > i{
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #0e4cff, #00d4ff);
+  transition: width .4s ease;
+  border-radius: 999px;
+}
+
+/* Unlock Section - Modern Design */
+.unlock{
+  display: none;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.unlock div{
+  opacity: .9;
+  color: rgba(234, 242, 255, 0.8);
+  font-size: 14px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid rgba(14, 76, 255, 0.1);
+}
+
+.unlock strong{
+  color: #00d4ff;
+  font-weight: 700;
+}
+
+.unlock a{
+  display: block;
+  padding: 16px 24px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #0e4cff, #00d4ff);
+  color: #001;
+  text-align: center;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 15px;
+}
+
+.unlock a:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(14, 76, 255, 0.3);
+}
+
+.unlock a:nth-child(3){
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  margin-top: 5px;
+}
+
+.unlock a:nth-child(3):hover{
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Trusted Badges Inside Locker - Compact Design */
+.trusted-badges {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: -10px -25px 20px -25px;
+  padding: 15px 25px;
+  background: linear-gradient(90deg, rgba(14, 76, 255, 0.05), rgba(0, 212, 255, 0.05));
+  border-radius: 20px 20px 0 0;
+  border: none;
+}
+
+.trusted-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 15px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.trusted-badge i {
+  color: #00d4ff;
+  font-weight: bold;
+}
+
+/* Close Button - Top Right */
+#modalClose {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  float: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: rgba(234, 242, 255, 0.7);
+  font-size: 22px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+#modalClose:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ff6b6b;
+  transform: rotate(90deg);
+}
 
   /* New Locker Modal - Centered */
   .new-locker-backdrop {
@@ -722,171 +1333,6 @@
     100% { transform: rotate(360deg); }
   }
 
-  /* Original Locker Modal */
-  .modal-backdrop{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(2,6,23,0.95);
-    backdrop-filter:blur(20px) saturate(180%);
-    -webkit-backdrop-filter:blur(20px) saturate(180%);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    z-index:10000;
-    padding:20px;
-  }
-  .modal-backdrop.active{
-    display:flex;
-    animation: fadeIn 0.3s ease;
-  }
-  .locker{
-    width:100%;
-    max-width:560px;
-    background:linear-gradient(180deg,#07102a,#081229);
-    border-radius:16px;
-    padding:22px;
-    border:1px solid rgba(14,76,255,0.14);
-    box-shadow:0 30px 80px rgba(2,6,23,0.9);
-    animation: modalAppear 0.3s ease;
-    position: relative;
-    z-index: 10001;
-    overflow: hidden;
-  }
-  
-  .locker::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #0e4cff, #00d4ff);
-    z-index: 1;
-  }
-  
-  @keyframes modalAppear {
-    from { opacity: 0; transform: scale(0.9) translateY(20px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
-  
-  .locker h3{font-size:20px;margin-bottom:8px}
-  .locker p{opacity:.85;margin-bottom:16px}
-  
-  /* Progress Step Bar */
-  .progress-steps {
-    display: flex;
-    justify-content: space-between;
-    margin: 25px 0;
-    position: relative;
-  }
-  
-  .progress-steps::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 10%;
-    right: 10%;
-    height: 2px;
-    background: rgba(255,255,255,0.1);
-    transform: translateY(-50%);
-    z-index: 0;
-  }
-  
-  .step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    z-index: 1;
-    flex: 1;
-  }
-  
-  .step-circle {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.05);
-    border: 2px solid rgba(255,255,255,0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
-    margin-bottom: 8px;
-    transition: all 0.3s ease;
-  }
-  
-  .step.active .step-circle {
-    background: linear-gradient(135deg, #0e4cff, #00d4ff);
-    border-color: transparent;
-    box-shadow: 0 4px 15px rgba(14,76,255,0.4);
-  }
-  
-  .step-label {
-    font-size: 12px;
-    opacity: 0.7;
-    text-align: center;
-  }
-  
-  .step.active .step-label {
-    opacity: 1;
-    font-weight: 600;
-  }
-  
-  .locker .verify{display:flex;gap:10px;align-items:center}
-  .verify .verify-btn{
-    flex:1;
-    padding:16px;
-    border-radius:12px;
-    border:none;
-    background:var(--accent);
-    font-weight:800;
-    cursor:pointer;
-    transition:transform 0.2s ease, box-shadow 0.2s ease;
-    font-size: 16px;
-    letter-spacing: 0.5px;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .verify .verify-btn::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-    transform: rotate(45deg);
-    animation: shine 3s infinite linear;
-  }
-  
-  @keyframes shine {
-    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-  }
-  
-  .verify .verify-btn:hover{
-    transform:scale(1.02);
-    box-shadow: 0 8px 30px rgba(14,76,255,0.4);
-  }
-  
-  .verify .verify-btn:active{
-    transform:scale(0.98);
-  }
-  
-  .verify .close{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:10px;color:var(--text);cursor:pointer}
-
-  .progress{height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden;margin:12px 0;display:none}
-  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--neon1),var(--neon2));transition:width .4s ease}
-
-  .unlock{display:none;flex-direction:column;gap:12px}
-  .unlock a{display:block;padding:12px;border-radius:12px;background:linear-gradient(90deg,var(--neon1),var(--neon2));color:#001;text-align:center;font-weight:800;text-decoration:none;transition:transform 0.2s ease}
-  .unlock a:hover{transform:scale(1.02)}
-
   /* Footer */
   footer{margin-top:12px;padding:18px;border-top:1px solid rgba(255,255,255,0.02);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
   footer small{opacity:.6}
@@ -1096,25 +1542,72 @@
     gap: 15px;
   }
   
+  /* UPDATED BUTTONS IN PREVIEW MODAL */
+  .preview-download-btn {
+    flex: 1;
+    padding: 16px 24px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(90deg, #0e4cff, #0088ff);
+    color: #001;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(14, 76, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    font-size: 15px;
+  }
+  
+  .preview-download-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.7s ease;
+  }
+  
+  .preview-download-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(14, 76, 255, 0.4);
+    background: linear-gradient(90deg, #0088ff, #0e4cff);
+  }
+  
+  .preview-download-btn:hover::before {
+    left: 100%;
+  }
+  
+  .preview-download-btn:active {
+    transform: translateY(0);
+  }
+  
   /* Enhanced close button in preview */
   .preview-close-btn {
-    padding: 12px 24px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 16px 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--text);
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    font-weight: 600;
   }
   
   .preview-close-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
   }
 
   /* Recommendations */
@@ -1229,6 +1722,70 @@
     .new-locker-actions { flex-direction: column; }
     .new-locker-verify-btn, .new-locker-close-btn { width: 100%; }
     .new-locker-step { padding: 15px; gap: 15px; }
+    
+    /* Search bar mobile adjustments */
+    .search-container {
+      margin: 15px 0 25px 0;
+    }
+    
+    #search-btn {
+      margin-left: 0;
+      margin-top: 10px;
+      width: 100%;
+    }
+    
+    .flex.items-center {
+      flex-direction: column;
+    }
+    
+    /* Locker Mobile Responsive Adjustments */
+    .locker{
+      max-width: 350px;
+      padding: 20px;
+    }
+    
+    .verify{
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .verify .verify-btn,
+    .verify .close{
+      width: 100%;
+    }
+    
+    .trusted-badges {
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .progress-steps {
+      margin: 20px 0;
+    }
+    
+    .step-label {
+      font-size: 10px;
+    }
+    
+    .locker h3 {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+    
+    .locker p {
+      font-size: 13px;
+    }
+    
+    /* Preview modal mobile */
+    .preview-actions {
+      flex-direction: column;
+    }
+    
+    .preview-download-btn,
+    .preview-close-btn {
+      width: 100%;
+    }
   }
   
   @media (min-width: 641px) and (max-width: 1024px) {
@@ -1247,37 +1804,22 @@
 <body>
   <!-- Professional Loader -->
   <div id="pageLoader">
-    <div class="loader-logo">
-      <div class="loader-logo-inner">
-        <span>G</span>
-      </div>
+    <div class="loader">
+      <svg viewBox="0 0 80 80">
+        <circle r="32" cy="40" cx="40" id="test"></circle>
+      </svg>
     </div>
     
-    <div class="loader-text" id="loaderMessage">Loading GameHub24...</div>
-    
-    <div class="loader-progress">
-      <div class="loader-progress-bar" id="loaderProgress"></div>
+    <div class="loader triangle">
+      <svg viewBox="0 0 86 80">
+        <polygon points="43 8 79 72 7 72"></polygon>
+      </svg>
     </div>
     
-    <div class="loader-stats">
-      <div class="loader-stat">
-        <div class="loader-stat-value" id="gamesCount">0</div>
-        <div class="loader-stat-label">Games Ready</div>
-      </div>
-      <div class="loader-stat">
-        <div class="loader-stat-value" id="usersCount">0</div>
-        <div class="loader-stat-label">Active Users</div>
-      </div>
-      <div class="loader-stat">
-        <div class="loader-stat-value" id="downloadsCount">0</div>
-        <div class="loader-stat-label">Downloads Today</div>
-      </div>
-    </div>
-    
-    <div class="loader-dots">
-      <div class="loader-dot"></div>
-      <div class="loader-dot"></div>
-      <div class="loader-dot"></div>
+    <div class="loader">
+      <svg viewBox="0 0 80 80">
+        <rect height="64" width="64" y="8" x="8"></rect>
+      </svg>
     </div>
   </div>
 
@@ -1373,6 +1915,76 @@
       </div>
     </header>
 
+    <!-- UPDATED SEARCH BAR -->
+    <div class="search-container">
+      <form class="flex items-center max-w-lg mx-auto" id="gameSearchForm">
+        <label class="sr-only" for="voice-search">Search Games</label>
+        <div class="relative w-full">
+          <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg" 
+                 aria-hidden="true" class="w-4 h-4 text-gray-400 dark:text-gray-400">
+              <path d="M11.15 5.6h.01m3.337 1.913h.01m-6.979 0h.01M5.541 11h.01M15 15h2.706a1.957 1.957 0 0 0 1.883-1.325A9 9 0 1 0 2.043 11.89 9.1 9.1 0 0 0 7.2 19.1a8.62 8.62 0 0 0 3.769.9A2.013 2.013 0 0 0 13 18v-.857A2.034 2.034 0 0 1 15 15Z"
+                stroke-width="2"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                stroke="currentColor">
+              </path>
+            </svg>
+          </div>
+          <input
+            required=""
+            placeholder="Search for games..."
+            class="search-input"
+            id="voice-search"
+            type="text"
+          />
+          <button
+            class="absolute inset-y-0 end-0 flex items-center pe-3"
+            type="button"
+            id="voice-search-btn"
+          >
+            <svg
+              viewBox="0 0 16 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              class="w-4 h-4 text-gray-400 hover:text-gray-200 transition-colors"
+            >
+              <path
+                d="M15 7v3a5.006 5.006 0 0 1-5 5H6a5.006 5.006 0 0 1-5-5V7m7 9v3m-3 0h6M7 1h2a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V4a3 3 0 0 1 3-3Z"
+                stroke-width="2"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+                stroke="currentColor"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <button
+          class="search-submit-btn"
+          id="search-btn"
+          type="submit"
+        >
+          <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            class="w-4 h-4 me-2"
+          >
+            <path
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+              stroke-width="2"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke="currentColor"
+            ></path>
+          </svg>
+          Search
+        </button>
+      </form>
+    </div>
+
     <!-- Trusted Badges -->
     <div class="trusted-badges">
       <div class="trusted-badge">
@@ -1397,12 +2009,7 @@
       </div>
     </div>
 
-    <!-- Search -->
-    <div class="search-container">
-      <input type="text" id="gameSearch" placeholder="Search for a game...">
-      <div class="search-icon">🔍</div>
-    </div>
-
+    
     <!-- Grid of games -->
     <main>
       <section class="grid" id="gamesGrid">
@@ -1419,8 +2026,12 @@
               <div class="game-sub">Action • Open World</div>
             </div>
             <div class="actions">
-              <button class="download" data-action="download" aria-label="Download GTA V">Download</button>
-              <button class="play" data-action="preview" aria-label="Preview GTA V">👁️ Preview</button>
+              <button class="download" data-action="download" aria-label="Download GTA V">
+                ⬇️ Download
+              </button>
+              <button class="play" data-action="preview" aria-label="Preview GTA V">
+                👁️ Preview
+              </button>
             </div>
           </div>
         </article>
@@ -1437,8 +2048,12 @@
               <div class="game-sub">Adventure • Western</div>
             </div>
             <div class="actions">
-              <button class="download" data-action="download" aria-label="Download Red Dead Redemption 2">Download</button>
-              <button class="play" data-action="preview" aria-label="Preview Red Dead Redemption 2">👁️ Preview</button>
+              <button class="download" data-action="download" aria-label="Download Red Dead Redemption 2">
+                ⬇️ Download
+              </button>
+              <button class="play" data-action="preview" aria-label="Preview Red Dead Redemption 2">
+                👁️ Preview
+              </button>
             </div>
           </div>
         </article>
@@ -1454,8 +2069,12 @@
               <div class="game-sub">Racing • Simulation</div>
             </div>
             <div class="actions">
-              <button class="download" data-action="download" aria-label="Download Forza Horizon 5">Download</button>
-              <button class="play" data-action="preview" aria-label="Preview Forza Horizon 5">👁️ Preview</button>
+              <button class="download" data-action="download" aria-label="Download Forza Horizon 5">
+                ⬇️ Download
+              </button>
+              <button class="play" data-action="preview" aria-label="Preview Forza Horizon 5">
+                👁️ Preview
+              </button>
             </div>
           </div>
         </article>
@@ -1471,8 +2090,12 @@
               <div class="game-sub">Driving • Soft-body physics</div>
             </div>
             <div class="actions">
-              <button class="download" data-action="download" aria-label="Download BeamNG.drive">Download</button>
-              <button class="play" data-action="preview" aria-label="Preview BeamNG.drive">👁️ Preview</button>
+              <button class="download" data-action="download" aria-label="Download BeamNG.drive">
+                ⬇️ Download
+              </button>
+              <button class="play" data-action="preview" aria-label="Preview BeamNG.drive">
+                👁️ Preview
+              </button>
             </div>
           </div>
         </article>
@@ -1489,8 +2112,12 @@
               <div class="game-sub">Action • Story</div>
             </div>
             <div class="actions">
-              <button class="download" data-action="download" aria-label="Download God of War">Download</button>
-              <button class="play" data-action="preview" aria-label="Preview God of War">👁️ Preview</button>
+              <button class="download" data-action="download" aria-label="Download God of War">
+                ⬇️ Download
+              </button>
+              <button class="play" data-action="preview" aria-label="Preview God of War">
+                👁️ Preview
+              </button>
             </div>
           </div>
         </article>
@@ -1506,8 +2133,12 @@
               <div class="game-sub">Action • Superhero</div>
             </div>
             <div class="actions">
-              <button class="download" data-action="download" aria-label="Download Spider-Man">Download</button>
-              <button class="play" data-action="preview" aria-label="Preview Spider-Man">👁️ Preview</button>
+              <button class="download" data-action="download" aria-label="Download Spider-Man">
+                ⬇️ Download
+              </button>
+              <button class="play" data-action="preview" aria-label="Preview Spider-Man">
+                👁️ Preview
+              </button>
             </div>
           </div>
         </article>
@@ -1523,8 +2154,12 @@
               <div class="game-sub">RPG • Historical</div>
             </div>
             <div class="actions">
-              <button class="download" data-action="download" aria-label="Download Assassin's Creed Valhalla">Download</button>
-              <button class="play" data-action="preview" aria-label="Preview Assassin's Creed Valhalla">👁️ Preview</button>
+              <button class="download" data-action="download" aria-label="Download Assassin's Creed Valhalla">
+                ⬇️ Download
+              </button>
+              <button class="play" data-action="preview" aria-label="Preview Assassin's Creed Valhalla">
+                👁️ Preview
+              </button>
             </div>
           </div>
         </article>
@@ -1541,8 +2176,12 @@
               <div class="game-sub">RPG • Sci-fi</div>
             </div>
             <div class="actions">
-              <button class="download" data-action="download" aria-label="Download Cyberpunk 2077">Download</button>
-              <button class="play" data-action="preview" aria-label="Preview Cyberpunk 2077">👁️ Preview</button>
+              <button class="download" data-action="download" aria-label="Download Cyberpunk 2077">
+                ⬇️ Download
+              </button>
+              <button class="play" data-action="preview" aria-label="Preview Cyberpunk 2077">
+                👁️ Preview
+              </button>
             </div>
           </div>
         </article>
@@ -1558,8 +2197,12 @@
               <div class="game-sub">Racing • Action</div>
             </div>
             <div class="actions">
-              <button class="download" data-action="download" aria-label="Download Need for Speed Heat">Download</button>
-              <button class="play" data-action="preview" aria-label="Preview Need for Speed Heat">👁️ Preview</button>
+              <button class="download" data-action="download" aria-label="Download Need for Speed Heat">
+                ⬇️ Download
+              </button>
+              <button class="play" data-action="preview" aria-label="Preview Need for Speed Heat">
+                👁️ Preview
+              </button>
             </div>
           </div>
         </article>
@@ -1575,8 +2218,12 @@
               <div class="game-sub">Sandbox • Creative</div>
             </div>
             <div class="actions">
-              <button class="download" data-action="download" aria-label="Download Minecraft">Download</button>
-              <button class="play" data-action="preview" aria-label="Preview Minecraft">👁️ Preview</button>
+              <button class="download" data-action="download" aria-label="Download Minecraft">
+                ⬇️ Download
+              </button>
+              <button class="play" data-action="preview" aria-label="Preview Minecraft">
+                👁️ Preview
+              </button>
             </div>
           </div>
         </article>
@@ -1628,7 +2275,9 @@
           </div>
           <div class="preview-description" id="previewDescription"></div>
           <div class="preview-actions">
-            <button class="verify-btn" id="previewDownloadBtn" style="flex:1; background: linear-gradient(90deg, #0e4cff, #00d4ff);">⬇️ Download Game Now</button>
+            <button class="preview-download-btn" id="previewDownloadBtn">
+              ⬇️ Download Game Now
+            </button>
             <button class="preview-close-btn" id="previewCloseBtn">Close</button>
           </div>
         </div>
@@ -1636,12 +2285,12 @@
     </div>
   </div>
 
-  <!-- Original Content Locker Modal -->
+  <!-- Original Content Locker Modal - MODIFIED DESIGN -->
   <div class="modal-backdrop" id="locker">
     <div class="locker" role="dialog" aria-modal="true" aria-labelledby="lockerTitle">
-      <button class="close" id="modalClose" style="float:right;background:transparent;border:none;color:var(--text);font-size:20px;cursor:pointer" aria-label="Close window">×</button>
+      <button class="close" id="modalClose" aria-label="Close window">×</button>
       
-      <div class="trusted-badges" style="margin: -10px -22px 20px -22px; padding: 15px 22px; background: rgba(14,76,255,0.05); border-radius: 16px 16px 0 0; border: none;">
+      <div class="trusted-badges">
         <div class="trusted-badge">
           <i>✓</i>
           <span>Secure Connection</span>
@@ -1691,6 +2340,16 @@
     </div>
   </div>
 
+  <!-- Exit Popup -->
+  <div class="exit-popup" id="exitPopup">
+    <h3>Wait! Download is almost ready.</h3>
+    <p>Complete quick verification to unlock your game instantly. Don't miss out!</p>
+    <div class="verify" style="margin-top: 20px;">
+      <button class="verify-btn" onclick="closeExitPopupAndVerify()" style="background: white; color: #0e4cff;">Complete Verification Now</button>
+      <button class="close" onclick="closeExitPopup()" style="background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3);">No Thanks</button>
+    </div>
+  </div>
+
   <!-- Time Offer -->
   <div class="time-offer" id="timeOffer" style="display: none;">
     <div style="font-size:24px;font-weight:bold;margin-bottom:10px;">🚀 FLASH SALE!</div>
@@ -1704,11 +2363,17 @@
   (function(){
     // Loader System
     const pageLoader = document.getElementById('pageLoader');
-    const loaderProgress = document.getElementById('loaderProgress');
-    const loaderMessage = document.getElementById('loaderMessage');
-    const gamesCount = document.getElementById('gamesCount');
-    const usersCount = document.getElementById('usersCount');
-    const downloadsCount = document.getElementById('downloadsCount');
+    
+    // Simulate loader
+    function initLoader() {
+      setTimeout(() => {
+        pageLoader.classList.add('loader-hidden');
+        document.body.style.opacity = 1;
+        
+        // Initialize everything
+        initializeApp();
+      }, 2000);
+    }
     
     // NEW LOCKER ELEMENTS
     const newLockerBackdrop = document.getElementById('newLockerBackdrop');
@@ -1748,75 +2413,16 @@
     const previewDownloadBtn = document.getElementById('previewDownloadBtn');
     const previewCloseBtn = document.getElementById('previewCloseBtn');
     
-    // Loader messages
-    const messages = [
-      "Loading GameHub24...",
-      "Preparing game catalog...",
-      "Optimizing performance...",
-      "Loading graphics...",
-      "Almost ready...",
-      "Welcome to GameHub24!"
-    ];
+    // Search Elements
+    const searchForm = document.getElementById('gameSearchForm');
+    const voiceSearchInput = document.getElementById('voice-search');
+    const voiceSearchBtn = document.getElementById('voice-search-btn');
+    const searchBtn = document.getElementById('search-btn');
     
-    // Simulate loading process
-    function simulateLoading() {
-      let progress = 0;
-      let messageIndex = 0;
-      
-      function animateCount(element, target, duration = 2000) {
-        let start = 0;
-        const increment = target / (duration / 16);
-        const timer = setInterval(() => {
-          start += increment;
-          if (start >= target) {
-            element.textContent = target;
-            clearInterval(timer);
-          } else {
-            element.textContent = Math.floor(start);
-          }
-        }, 16);
-      }
-      
-      const interval = setInterval(() => {
-        progress += Math.random() * 10 + 5;
-        
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-          
-          loaderMessage.textContent = messages[messages.length - 1];
-          loaderProgress.style.width = '100%';
-          
-          setTimeout(() => {
-            pageLoader.classList.add('loader-hidden');
-            document.body.style.opacity = 1;
-            eventTracker.track('page_loaded', 'loader', 100);
-          }, 500);
-        } else {
-          loaderProgress.style.width = progress + '%';
-          
-          const newMessageIndex = Math.floor((progress / 100) * (messages.length - 1));
-          if (newMessageIndex > messageIndex) {
-            messageIndex = newMessageIndex;
-            loaderMessage.textContent = messages[messageIndex];
-          }
-        }
-        
-        if (progress >= 20) animateCount(gamesCount, 10);
-        if (progress >= 50) animateCount(usersCount, 12487);
-        if (progress >= 80) animateCount(downloadsCount, 56321);
-        
-      }, 200);
-      
-      animateCount(gamesCount, 10, 1000);
-    }
-    
-    simulateLoading();
-
     // Other Elements
     const modalClose = document.getElementById('modalClose');
     const howItWorks = document.getElementById('howItWorks');
-    const gameSearch = document.getElementById('gameSearch');
+    const showAllBtn = document.getElementById('showAll');
     const mobileCTA = document.getElementById('mobileCTA');
     const mobileCTAButton = document.getElementById('mobileCTAButton');
     const exitPopup = document.getElementById('exitPopup');
@@ -1830,6 +2436,7 @@
     let exitIntentTriggered = false;
     let lastScrollTop = 0;
     let isNewLockerActive = false;
+    let isListening = false;
     
     // Event Tracking System
     const eventTracker = {
@@ -1854,27 +2461,7 @@
         
         console.log('Event tracked:', event);
         
-        this.sendToAnalytics(event);
-        
         return event;
-      },
-      
-      sendToAnalytics: function(event) {
-        if (typeof gtag === 'function') {
-          gtag('event', event.action, {
-            'event_category': 'GameHub',
-            'event_label': event.label,
-            'value': event.value
-          });
-        }
-        
-        fetch('/api/track', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(event)
-        }).catch(() => {});
       },
       
       getEvents: function() {
@@ -1936,6 +2523,30 @@
             oscillator.stop(audioContext.currentTime + 0.15);
         } catch (e) {
             console.log("Preview audio error:", e);
+        }
+    }
+    
+    // Search sound effect
+    function playSearchSound() {
+        initAudio();
+        
+        try {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 1000;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        } catch (e) {
+            console.log("Search audio error:", e);
         }
     }
 
@@ -2082,6 +2693,194 @@
       }, 1000);
     }
     
+    // ==============================================
+    // UPDATED SEARCH FUNCTIONALITY
+    // ==============================================
+    function setupSearch() {
+      // Search form submission
+      searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        performSearch();
+      });
+      
+      // Search button click
+      searchBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        performSearch();
+      });
+      
+      // Voice search button
+      voiceSearchBtn.addEventListener('click', function() {
+        toggleVoiceSearch();
+      });
+      
+      // Real-time search as user types
+      voiceSearchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim().toLowerCase();
+        if (searchTerm.length >= 2) {
+          filterGames(searchTerm);
+        } else if (searchTerm.length === 0) {
+          showAllGames();
+        }
+      });
+    }
+    
+    function performSearch() {
+      const searchTerm = voiceSearchInput.value.trim().toLowerCase();
+      playSearchSound();
+      
+      if (searchTerm.length === 0) {
+        showAllGames();
+        // Add shake animation to search bar
+        voiceSearchInput.style.animation = 'shake 0.5s ease';
+        setTimeout(() => {
+          voiceSearchInput.style.animation = '';
+        }, 500);
+        return;
+      }
+      
+      filterGames(searchTerm);
+      eventTracker.track('search_performed', searchTerm);
+      
+      // Add visual feedback to search button
+      searchBtn.innerHTML = '<div class="small-spinner"></div> Searching...';
+      searchBtn.disabled = true;
+      
+      setTimeout(() => {
+        searchBtn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="w-4 h-4 me-2"><path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor"></path></svg>Search';
+        searchBtn.disabled = false;
+      }, 500);
+    }
+    
+    function filterGames(searchTerm) {
+      const cards = document.querySelectorAll('.card');
+      let foundCount = 0;
+      
+      cards.forEach(card => {
+        const gameTitle = card.querySelector('.game-title').textContent.toLowerCase();
+        const gameSub = card.querySelector('.game-sub').textContent.toLowerCase();
+        const gameData = card.getAttribute('data-game').toLowerCase();
+        const category = card.getAttribute('data-category').toLowerCase();
+        
+        if (gameTitle.includes(searchTerm) || 
+            gameSub.includes(searchTerm) || 
+            gameData.includes(searchTerm) ||
+            category.includes(searchTerm)) {
+          card.style.display = 'flex';
+          foundCount++;
+          
+          // Add highlight animation
+          card.style.animation = 'fadeIn 0.5s ease';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      
+      // Show message if no results found
+      const grid = document.getElementById('gamesGrid');
+      let noResultsMsg = grid.querySelector('.no-results');
+      
+      if (foundCount === 0 && searchTerm.length > 0) {
+        if (!noResultsMsg) {
+          noResultsMsg = document.createElement('div');
+          noResultsMsg.className = 'no-results';
+          noResultsMsg.style.cssText = `
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: rgba(234, 242, 255, 0.6);
+            font-size: 16px;
+          `;
+          noResultsMsg.innerHTML = `
+            <div style="font-size: 48px; margin-bottom: 10px;">🔍</div>
+            <div style="font-weight: 600; margin-bottom: 10px;">No games found</div>
+            <div>Try searching for something else</div>
+          `;
+          grid.appendChild(noResultsMsg);
+        }
+      } else if (noResultsMsg) {
+        noResultsMsg.remove();
+      }
+    }
+    
+    function showAllGames() {
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(card => {
+        card.style.display = 'flex';
+        card.style.animation = 'fadeIn 0.5s ease';
+      });
+      
+      const grid = document.getElementById('gamesGrid');
+      const noResultsMsg = grid.querySelector('.no-results');
+      if (noResultsMsg) {
+        noResultsMsg.remove();
+      }
+    }
+    
+    function toggleVoiceSearch() {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert("Voice search is not supported in your browser. Please try Chrome or Edge.");
+        return;
+      }
+      
+      if (isListening) {
+        stopVoiceSearch();
+      } else {
+        startVoiceSearch();
+      }
+    }
+    
+    function startVoiceSearch() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      
+      recognition.start();
+      isListening = true;
+      voiceSearchBtn.classList.add('active');
+      voiceSearchBtn.innerHTML = '<div class="pulse-dot"></div>';
+      
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        voiceSearchInput.value = transcript;
+        performSearch();
+      };
+      
+      recognition.onend = function() {
+        isListening = false;
+        voiceSearchBtn.classList.remove('active');
+        voiceSearchBtn.innerHTML = `
+          <svg viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="w-4 h-4">
+            <path d="M15 7v3a5.006 5.006 0 0 1-5 5H6a5.006 5.006 0 0 1-5-5V7m7 9v3m-3 0h6M7 1h2a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V4a3 3 0 0 1 3-3Z" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor"></path>
+          </svg>
+        `;
+      };
+      
+      recognition.onerror = function(event) {
+        console.error('Speech recognition error', event.error);
+        isListening = false;
+        voiceSearchBtn.classList.remove('active');
+        voiceSearchBtn.innerHTML = `
+          <svg viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="w-4 h-4">
+            <path d="M15 7v3a5.006 5.006 0 0 1-5 5H6a5.006 5.006 0 0 1-5-5V7m7 9v3m-3 0h6M7 1h2a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V4a3 3 0 0 1 3-3Z" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor"></path>
+          </svg>
+        `;
+      };
+    }
+    
+    function stopVoiceSearch() {
+      isListening = false;
+      voiceSearchBtn.classList.remove('active');
+      voiceSearchBtn.innerHTML = `
+        <svg viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="w-4 h-4">
+          <path d="M15 7v3a5.006 5.006 0 0 1-5 5H6a5.006 5.006 0 0 1-5-5V7m7 9v3m-3 0h6M7 1h2a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V4a3 3 0 0 1 3-3Z" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke="currentColor"></path>
+        </svg>
+      `;
+    }
+
     // Mobile CTA Scroll Behavior
     function handleScroll() {
       const st = window.pageYOffset || document.documentElement.scrollTop;
@@ -2281,7 +3080,6 @@
         z-index:1000;
         max-width:300px;
         box-shadow:0 10px 30px rgba(0,212,255,0.3);
-        animation:slideIn 0.3s ease;
       `;
       notification.innerHTML = `
         <div style="font-weight:bold;margin-bottom:5px;">🎮 Download Complete!</div>
@@ -2365,29 +3163,6 @@
       const offer = document.getElementById('timeOffer');
       if (offer) offer.remove();
       eventTracker.track('offer_dismissed', 'flash_sale');
-    }
-
-    // Search functionality
-    function setupSearch() {
-      if (gameSearch) {
-        gameSearch.addEventListener('input', function(e) {
-          const searchTerm = e.target.value.toLowerCase();
-          const cards = document.querySelectorAll('.card');
-          
-          cards.forEach(card => {
-            const gameTitle = card.querySelector('.game-title').textContent.toLowerCase();
-            if (gameTitle.includes(searchTerm)) {
-              card.style.display = 'flex';
-            } else {
-              card.style.display = 'none';
-            }
-          });
-          
-          if (searchTerm.length >= 2) {
-            eventTracker.track('search_performed', searchTerm);
-          }
-        });
-      }
     }
 
     // ==============================================
@@ -2574,9 +3349,11 @@
     });
 
     // Show all games
-    document.getElementById('showAll').addEventListener('click', () => { 
+    showAllBtn.addEventListener('click', () => { 
       playClickSound();
       eventTracker.track('show_all_clicked', 'navigation');
+      voiceSearchInput.value = '';
+      showAllGames();
       window.scrollTo({top: document.getElementById('gamesGrid').offsetTop - 20, behavior:'smooth'}) 
     });
 
@@ -2622,8 +3399,8 @@
       }
     }
 
-    // Start app after loader
-    setTimeout(initializeApp, 1000);
+    // Start everything
+    document.addEventListener('DOMContentLoaded', initLoader);
 
   })();
 </script>
